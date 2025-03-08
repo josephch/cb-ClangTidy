@@ -6,8 +6,8 @@
 #ifndef CPPCHECKLISTLOG_H
 #define CPPCHECKLISTLOG_H
 
-#include <wx/event.h>
 #include "loggers.h"
+#include <wx/event.h>
 
 class wxArrayString;
 class wxArrayInt;
@@ -16,13 +16,13 @@ class wxWindow;
 
 class CbClangTidyListLog : public ListCtrlLogger, public wxEvtHandler
 {
-public:
+  public:
     CbClangTidyListLog(const wxArrayString& Titles, wxArrayInt& Widths);
     ~CbClangTidyListLog();
     wxWindow* CreateControl(wxWindow* Parent);
     void DestroyControls();
 
-private:
+  private:
     void OnDoubleClick(wxCommandEvent& Event);
     void SyncEditor(int selIndex);
 

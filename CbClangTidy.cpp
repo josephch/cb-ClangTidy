@@ -5,28 +5,28 @@
  * Created:   12/11/2009
  * Copyright: (c) Lieven de Cock (aka killerbot)
  * License:   GPL
-  **************************************************************/
+ **************************************************************/
 #include "sdk.h"
 #ifndef CB_PRECOMP
     #include <wx/arrstr.h>
     #include <wx/dir.h>
     #include <wx/file.h>
     #include <wx/filefn.h>
-    #include <wx/fs_zip.h>
     #include <wx/filename.h>
+    #include <wx/fs_zip.h>
     #include <wx/intl.h>
     #include <wx/menu.h>
     #include <wx/string.h>
     #include <wx/xrc/xmlres.h>
 
-    #include "cbproject.h"
     #include "cbplugin.h"
+    #include "cbproject.h"
     #include "configmanager.h"
-    #include "manager.h"
     #include "logmanager.h"
+    #include "macrosmanager.h"
+    #include "manager.h"
     #include "pluginmanager.h"
     #include "projectmanager.h"
-    #include "macrosmanager.h"
 #endif
 
 #include <wx/busyinfo.h>
@@ -34,13 +34,13 @@
 #include <wx/filefn.h>
 #include <wx/utils.h>
 
-#include <tinyxml.h>
 #include "filefilters.h"
 #include "loggers.h"
+#include <tinyxml.h>
 
 #include "CbClangTidy.h"
-#include "CbClangTidyListLog.h"
 #include "CbClangTidyConfigPanel.h"
+#include "CbClangTidyListLog.h"
 
 // Register the plugin
 namespace
@@ -65,13 +65,11 @@ namespace
     }
 }; // namespace
 
-
-CbClangTidy::CbClangTidy() :
-    m_CbClangTidyLog(0),
-    m_ListLog(0),
-    m_LogPageIndex(0), // good init value ???
-    m_ListLogPageIndex(0),
-    m_PATH(wxEmptyString)
+CbClangTidy::CbClangTidy() : m_CbClangTidyLog(0),
+                             m_ListLog(0),
+                             m_LogPageIndex(0), // good init value ???
+                             m_ListLogPageIndex(0),
+                             m_PATH(wxEmptyString)
 {
 }
 
@@ -95,10 +93,14 @@ void CbClangTidy::OnAttach()
         CodeBlocksLogEvent evtAdd1(cbEVT_ADD_LOG_WINDOW, m_CbClangTidyLog, LogMan->Slot(m_LogPageIndex).title);
         Manager::Get()->ProcessEvent(evtAdd1);
 
-        wxArrayString Titles; wxArrayInt Widths;
-        Titles.Add(_("File"));    Widths.Add(128);
-        Titles.Add(_("Line"));    Widths.Add(48);
-        Titles.Add(_("Message")); Widths.Add(640);
+        wxArrayString Titles;
+        wxArrayInt Widths;
+        Titles.Add(_("File"));
+        Widths.Add(128);
+        Titles.Add(_("Line"));
+        Widths.Add(48);
+        Titles.Add(_("Message"));
+        Widths.Add(640);
         m_ListLog = new CbClangTidyListLog(Titles, Widths);
 
         m_ListLogPageIndex = LogMan->SetLog(m_ListLog);
@@ -152,7 +154,7 @@ void CbClangTidy::AppendToLog(const wxString& Text)
 cbConfigurationPanel* CbClangTidy::GetConfigurationPanel(wxWindow* parent)
 {
     // Called by plugin manager to show config panel in global Setting Dialog
-    if ( !IsAttached() )
+    if (!IsAttached())
         return NULL;
 
     return new CbClangTidyConfigPanel(parent);
@@ -162,7 +164,7 @@ int CbClangTidy::Execute()
 {
     WriteToLog(_("Running clang-tidy analysis... please wait..."));
 
-    if ( !CheckRequirements() )
+    if (!CheckRequirements())
         return -1;
 
     cbProject* Project = Manager::Get()->GetProjectManager()->GetActiveProject();
@@ -173,33 +175,32 @@ int CbClangTidy::Execute()
     AppendToLog(_("Switching working directory to : ") + BasePath);
     ::wxSetWorkingDirectory(BasePath);
 
-
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
     int choice = cfg->ReadInt(_T("operation"), 0);
 
     int result_cppcheck = 0;
-    int result_vera     = 0;
+    int result_vera = 0;
 
-    if ((0==choice) || (2==choice))
-      result_cppcheck = ExecuteCbClangTidy(Project);
+    if ((0 == choice) || (2 == choice))
+        result_cppcheck = ExecuteCbClangTidy(Project);
 
-    if ((1==choice) || (2==choice))
-      result_vera = ExecuteVera(Project);
+    if ((1 == choice) || (2 == choice))
+        result_vera = ExecuteVera(Project);
 
-    return ((0==result_cppcheck) && (0==result_vera)) ? 0 : -1;
+    return ((0 == result_cppcheck) && (0 == result_vera)) ? 0 : -1;
 }
 
 //{ CbClangTidy
 int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
 {
-    if ( !DoVersion(_T("cppcheck"), _T("cppcheck_app")) )
+    if (!DoVersion(_T("cppcheck"), _T("cppcheck_app")))
         return -1;
 
     TCbClangTidyAttribs CbClangTidyAttribs;
 
     wxFile InputFile;
     CbClangTidyAttribs.InputFileName = _T("CbClangTidyInput.txt");
-    if ( !InputFile.Create(CbClangTidyAttribs.InputFileName, true) )
+    if (!InputFile.Create(CbClangTidyAttribs.InputFileName, true))
     {
         cbMessageBox(_("Failed to create input file 'CbClangTidyInput.txt' for cppcheck.\nPlease check file/folder access rights."),
                      _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
@@ -210,21 +211,15 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
     {
         ProjectFile* pf = *it;
         // filter to avoid including non C/C++ files
-        if (   pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT)
-            || (FileTypeOf(pf->relativeFilename) == ftHeader)
-            || (FileTypeOf(pf->relativeFilename) == ftTemplateSource) )
+        if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftHeader) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
         {
             InputFile.Write(pf->relativeFilename + _T("\n"));
         }
     }
     InputFile.Close();
 
-    MacrosManager*      MacrosMgr = Manager::Get()->GetMacrosManager();
-    ProjectBuildTarget* Target    = Project->GetBuildTarget(Project->GetActiveBuildTarget());
+    MacrosManager* MacrosMgr = Manager::Get()->GetMacrosManager();
+    ProjectBuildTarget* Target = Project->GetBuildTarget(Project->GetActiveBuildTarget());
 
     // project include dirs
     const wxArrayString& IncludeDirs = Project->GetIncludeDirs();
@@ -259,7 +254,7 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
         else
             MacrosMgr->ReplaceMacros(Define);
 
-        if ( Define.StartsWith(_T("-D")) )
+        if (Define.StartsWith(_T("-D")))
             CbClangTidyAttribs.DefineList += Define + _T(" ");
     }
     if (Target)
@@ -271,7 +266,7 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
             wxString Define(targetDefines[Opt]);
             MacrosMgr->ReplaceMacros(Define, Target);
 
-            if ( Define.StartsWith(_T("-D")) )
+            if (Define.StartsWith(_T("-D")))
                 CbClangTidyAttribs.DefineList += Define + _T(" ");
         }
     }
@@ -283,16 +278,14 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
 
-    wxString CppExe  = GetAppExecutable(_T("cppcheck"), _T("cppcheck_app"));
+    wxString CppExe = GetAppExecutable(_T("cppcheck"), _T("cppcheck_app"));
     wxString CppArgs = cfg->Read(_T("cppcheck_args"), _T("--verbose --enable=all --enable=style --xml"));
     Manager::Get()->GetMacrosManager()->ReplaceMacros(CppArgs);
-    wxString CommandLine = CppExe + _T(" ") + CppArgs
-                         + _T(" --file-list=") + CbClangTidyAttribs.InputFileName;
+    wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" --file-list=") + CbClangTidyAttribs.InputFileName;
 
-    if ( !CbClangTidyAttribs.IncludeList.IsEmpty() )
+    if (!CbClangTidyAttribs.IncludeList.IsEmpty())
     {
-        CommandLine += _T(" ") + CbClangTidyAttribs.IncludeList.Trim() + _T(" ")
-                     + CbClangTidyAttribs.DefineList.Trim();
+        CommandLine += _T(" ") + CbClangTidyAttribs.IncludeList.Trim() + _T(" ") + CbClangTidyAttribs.DefineList.Trim();
     }
 
     wxArrayString Output, Errors;
@@ -315,8 +308,8 @@ void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
     m_ListLog->Clear();
 
     TiXmlDocument Doc;
-    Doc.Parse( Xml.ToAscii() );
-    if ( Doc.Error() )
+    Doc.Parse(Xml.ToAscii());
+    if (Doc.Error())
     {
         wxString msg = _("Failed to parse cppcheck XML file.\nProbably it's not produced correctly.");
         AppendToLog(msg);
@@ -332,7 +325,7 @@ void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
         if (resultNode && resultNode->Attribute("version"))
         {
             wxString Version = wxString::FromAscii(resultNode->Attribute("version"));
-            if ( Version.IsSameAs(wxT("2")) )
+            if (Version.IsSameAs(wxT("2")))
                 ErrorsPresent = DoCbClangTidyParseXMLv2(Handle);
             else
             {
@@ -347,14 +340,14 @@ void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
 
         if (ErrorsPresent)
         {
-            if ( Manager::Get()->GetLogManager() )
+            if (Manager::Get()->GetLogManager())
             {
                 CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
                 Manager::Get()->ProcessEvent(evtSwitch);
             }
         }
 
-        if ( !Doc.SaveFile("CbClangTidyResults.xml") )
+        if (!Doc.SaveFile("CbClangTidyResults.xml"))
         {
             cbMessageBox(_("Failed to create output file 'CbClangTidyResults.xml' for cppcheck.\nPlease check file/folder access rights."),
                          _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
@@ -367,7 +360,7 @@ bool CbClangTidy::DoCbClangTidyParseXMLv1(TiXmlHandle& Handle)
     bool ErrorsPresent = false;
 
     for (const TiXmlElement* Error = Handle.FirstChildElement("error").ToElement(); Error;
-            Error = Error->NextSiblingElement("error"))
+         Error = Error->NextSiblingElement("error"))
     {
         wxString File;
         if (const char* FileValue = Error->Attribute("file"))
@@ -409,8 +402,8 @@ bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
     const TiXmlHandle& Errors = Handle.FirstChildElement("errors");
 
     for (const TiXmlElement* Error = Errors.FirstChildElement("error").ToElement();
-                             Error;
-                             Error = Error->NextSiblingElement("error"))
+         Error;
+         Error = Error->NextSiblingElement("error"))
     {
         wxString Id;
         if (const char* IdValue = Error->Attribute("id"))
@@ -432,7 +425,7 @@ bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
         wxString File;
         wxString Line;
         const TiXmlElement* Location = Error->FirstChildElement("location");
-        if (nullptr!=Location)
+        if (nullptr != Location)
         {
             if (const char* FileValue = Location->Attribute("file"))
                 File = wxString::FromAscii(FileValue);
@@ -460,12 +453,12 @@ bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
 //{ Vera
 int CbClangTidy::ExecuteVera(cbProject* Project)
 {
-    if ( !DoVersion("vera++", "vera_app") )
+    if (!DoVersion("vera++", "vera_app"))
         return -1;
 
     wxFile InputFile;
     wxString InputsFile("VeraInput.txt");
-    if ( !InputFile.Create(InputsFile, true) )
+    if (!InputFile.Create(InputsFile, true))
     {
         cbMessageBox(wxString::Format(_("Failed to create input file '%s' for vera++.\nPlease check file/folder access rights."), InputsFile),
                      _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
@@ -476,13 +469,7 @@ int CbClangTidy::ExecuteVera(cbProject* Project)
     {
         ProjectFile* pf = *it;
         // filter to avoid including non C/C++ files
-        if (   pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT)
-            || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT)
-            || (FileTypeOf(pf->relativeFilename) == ftHeader)
-            || (FileTypeOf(pf->relativeFilename) == ftTemplateSource) )
+        if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftHeader) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
         {
             InputFile.Write(pf->relativeFilename + _T("\n"));
         }
@@ -496,11 +483,10 @@ int CbClangTidy::DoVeraExecute(const wxString& InputsFile)
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
 
-    wxString VeraExe  = GetAppExecutable(_T("vera++"), _T("vera_app"));
+    wxString VeraExe = GetAppExecutable(_T("vera++"), _T("vera_app"));
     wxString VeraArgs = cfg->Read(_T("vera_args"), wxEmptyString);
     Manager::Get()->GetMacrosManager()->ReplaceMacros(VeraArgs);
-    wxString CommandLine = VeraExe + _T(" ") + VeraArgs
-                         + _T("--inputs ") + InputsFile;
+    wxString CommandLine = VeraExe + _T(" ") + VeraArgs + _T("--inputs ") + InputsFile;
 
     wxArrayString Output, Errors;
     bool isOK = AppExecute(_T("vera++"), CommandLine, Output, Errors);
@@ -515,41 +501,41 @@ int CbClangTidy::DoVeraExecute(const wxString& InputsFile)
 
 void CbClangTidy::DoVeraAnalysis(const wxArrayString& Result)
 {
-  wxRegEx reVera(_T("(.+):([0-9]+):(.+)"));
+    wxRegEx reVera(_T("(.+):([0-9]+):(.+)"));
 
-  bool ErrorsPresent = false;
+    bool ErrorsPresent = false;
 
-  for (size_t idxCount = 0; idxCount < Result.GetCount(); ++idxCount)
-  {
-    wxString Res = Result[idxCount];
-    if (reVera.Matches(Res))
+    for (size_t idxCount = 0; idxCount < Result.GetCount(); ++idxCount)
     {
-      wxString File = reVera.GetMatch(Res, 1);
-      wxString Line = reVera.GetMatch(Res, 2);
-      wxString Msg  = reVera.GetMatch(Res, 3);
+        wxString Res = Result[idxCount];
+        if (reVera.Matches(Res))
+        {
+            wxString File = reVera.GetMatch(Res, 1);
+            wxString Line = reVera.GetMatch(Res, 2);
+            wxString Msg = reVera.GetMatch(Res, 3);
 
-      if (!File.IsEmpty() && !Line.IsEmpty() && !Msg.IsEmpty())
-      {
-          wxArrayString Arr;
-          Arr.Add(File);
-          Arr.Add(Line);
-          Arr.Add(Msg);
-          m_ListLog->Append(Arr);
-          ErrorsPresent = true;
-      }
-      else if (!Msg.IsEmpty())
-          AppendToLog(Msg); // might be something important like config not found...
+            if (!File.IsEmpty() && !Line.IsEmpty() && !Msg.IsEmpty())
+            {
+                wxArrayString Arr;
+                Arr.Add(File);
+                Arr.Add(Line);
+                Arr.Add(Msg);
+                m_ListLog->Append(Arr);
+                ErrorsPresent = true;
+            }
+            else if (!Msg.IsEmpty())
+                AppendToLog(Msg); // might be something important like config not found...
+        }
     }
-  }
 
-  if (ErrorsPresent)
-  {
-      if ( Manager::Get()->GetLogManager() )
-      {
-          CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
-          Manager::Get()->ProcessEvent(evtSwitch);
-      }
-  }
+    if (ErrorsPresent)
+    {
+        if (Manager::Get()->GetLogManager())
+        {
+            CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
+            Manager::Get()->ProcessEvent(evtSwitch);
+        }
+    }
 }
 //} Vera
 
@@ -559,7 +545,7 @@ bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
 
     wxArrayString Output, Errors;
     wxString CommandLine = app_exe + _T(" --version");
-    if ( !AppExecute(app, CommandLine, Output, Errors) )
+    if (!AppExecute(app, CommandLine, Output, Errors))
         return false;
 
     return true;
@@ -572,11 +558,12 @@ bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, w
                        Manager::Get()->GetAppWindow());
 
     AppendToLog(CommandLine);
-    if ( -1 == wxExecute(CommandLine, Output, Errors, wxEXEC_SYNC) )
+    if (-1 == wxExecute(CommandLine, Output, Errors, wxEXEC_SYNC))
     {
         wxString msg;
         msg.Printf(_("Failed to launch %s.\nPlease setup the %s executable accordingly in the settings\n"
-                     "and make sure it is also in the path so %s resources are found."), app, app, app);
+                     "and make sure it is also in the path so %s resources are found."),
+                   app, app, app);
 
         AppendToLog(msg);
         cbMessageBox(msg, _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
@@ -594,7 +581,8 @@ bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, w
     for (int idxCount = 0; idxCount < Count; ++idxCount)
         AppendToLog(Errors[idxCount]);
 
-    if (!m_PATH.IsEmpty()) wxSetEnv(wxT("PATH"), m_PATH); // Restore
+    if (!m_PATH.IsEmpty())
+        wxSetEnv(wxT("PATH"), m_PATH); // Restore
     return true;
 }
 
@@ -615,7 +603,7 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
         wxString AppPath = fn.GetPath();
         AppendToLog(wxString::Format(_("Path to %s: '%s'."), app, AppPath));
 
-        if ( AppPath.Trim().IsEmpty() )
+        if (AppPath.Trim().IsEmpty())
             return Executable; // Nothing to do, lets hope it works and cppcheck is in the PATH
 
         bool PrependPath = true;
@@ -623,24 +611,23 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
 
         wxPathList PathList;
         PathList.AddEnvList(wxT("PATH"));
-        for (size_t i=0; i<PathList.GetCount(); ++i)
+        for (size_t i = 0; i < PathList.GetCount(); ++i)
         {
             wxString PathItem = PathList.Item(i);
-            if ( PathItem.IsSameAs(AppPath, (platform::windows ? false : true)) )
+            if (PathItem.IsSameAs(AppPath, (platform::windows ? false : true)))
             {
                 AppendToLog(_("Executable of cppcheck is in the path."));
                 PrependPath = false;
                 break; // Exit for-loop
             }
 
-            if ( !NewPathEnvVar.IsEmpty() )
+            if (!NewPathEnvVar.IsEmpty())
                 NewPathEnvVar << wxPATH_SEP;
             NewPathEnvVar << PathItem;
         }
 
         if (m_PATH.IsEmpty())
             m_PATH = NewPathEnvVar;
-
 
         if (PrependPath)
         {

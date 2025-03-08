@@ -1,12 +1,12 @@
 #include "sdk.h"
 
 #ifndef CB_PRECOMP
+    #include "cbeditor.h"
+    #include "editormanager.h"
+    #include "manager.h"
     #include <wx/arrstr.h>
     #include <wx/filename.h>
     #include <wx/listctrl.h>
-    #include "manager.h"
-    #include "editormanager.h"
-    #include "cbeditor.h"
 #endif
 #include "cbstyledtextctrl.h"
 
@@ -24,17 +24,15 @@ END_EVENT_TABLE()
 CbClangTidyListLog::CbClangTidyListLog(const wxArrayString& Titles, wxArrayInt& Widths)
     : ListCtrlLogger(Titles, Widths)
 {
-    //ctor
+    // ctor
 }
 
 CbClangTidyListLog::~CbClangTidyListLog()
 {
-    //dtor
+    // dtor
     Disconnect(ID_List, -1, wxEVT_COMMAND_LIST_ITEM_ACTIVATED,
-               (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-               &CbClangTidyListLog::OnDoubleClick);
+               (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&CbClangTidyListLog::OnDoubleClick);
 }
-
 
 // TODO : use Getter instead of protected 'control'
 
@@ -43,15 +41,14 @@ wxWindow* CbClangTidyListLog::CreateControl(wxWindow* parent)
     ListCtrlLogger::CreateControl(parent);
     control->SetId(ID_List);
     Connect(ID_List, -1, wxEVT_COMMAND_LIST_ITEM_ACTIVATED,
-            (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-            &CbClangTidyListLog::OnDoubleClick);
+            (wxObjectEventFunction)(wxEventFunction)(wxCommandEventFunction)&CbClangTidyListLog::OnDoubleClick);
     Manager::Get()->GetAppWindow()->PushEventHandler(this);
     return control;
 }
 
 void CbClangTidyListLog::DestroyControls()
 {
-    if ( !Manager::Get()->IsAppShuttingDown() )
+    if (!Manager::Get()->IsAppShuttingDown())
     {
         Manager::Get()->GetAppWindow()->RemoveEventHandler(this);
     }

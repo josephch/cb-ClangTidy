@@ -21,8 +21,7 @@ class CbClangTidy;
 
 class CbClangTidyConfigPanel : public cbConfigurationPanel
 {
-public:
-
+  public:
     CbClangTidyConfigPanel(wxWindow* parent);
     virtual ~CbClangTidyConfigPanel();
 
@@ -47,8 +46,8 @@ public:
 
     static wxString GetDefaultCbClangTidyExecutableName();
     static wxString GetDefaultVeraExecutableName();
-protected:
 
+  protected:
     //(*Identifiers(CbClangTidyConfigPanel)
     static const wxWindowID ID_TXT_CPP_CHECK_APP;
     static const wxWindowID ID_BTN_CPPCHECK_APP;
@@ -63,8 +62,7 @@ protected:
     static const wxWindowID ID_CHO_OPERATION;
     //*)
 
-private:
-
+  private:
     //(*Handlers(CbClangTidyConfigPanel)
     void OnCbClangTidyApp(wxCommandEvent& event);
     void OnVeraApp(wxCommandEvent& event);
