@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="CbClangTidy(Unix External)" />
+		<Option pch_mode="0" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="default">
+				<Option output="CbClangTidy" prefix_auto="0" extension_auto="1" />
+				<Option object_output=".objs/default" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="`pkg-config --cflags codeblocks`" />
+					<Add option="`wx-config --cflags`" />
+					<Add option="-g" />
+					<Add option="-Wall" />
+					<Add directory="json/include" />
+				</Compiler>
+				<Linker>
+					<Add option="`pkg-config --libs codeblocks`" />
+					<Add option="`wx-config --libs`" />
+				</Linker>
+				<ExtraCommands>
+					<Add after="zip -j9 CbClangTidy.zip resources/manifest.xml" />
+					<Add after="zip -j9 CbClangTidy.cbplugin CbClangTidy.so CbClangTidy.zip" />
+					<Mode after="always" />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<VirtualTargets>
+			<Add alias="All" targets="default;" />
+		</VirtualTargets>
+		<Compiler>
+			<Add option="-std=c++11" />
+			<Add option="-fPIC" />
+		</Compiler>
+		<Linker>
+			<Add option="-Wl,--no-undefined" />
+		</Linker>
+		<Unit filename="CbClangTidyConfigPanel.cpp" />
+		<Unit filename="CbClangTidyConfigPanel.h" />
+		<Unit filename="CbClangTidy.cpp" />
+		<Unit filename="CbClangTidy.h" />
+		<Unit filename="CbClangTidyListLog.cpp" />
+		<Unit filename="CbClangTidyListLog.h" />
+		<Unit filename="wxsmith/ConfigPanel.wxs" />
+		<Extensions>
+			<wxsmith version="1">
+				<resources>
+					<wxPanel wxs="wxsmith/CbClangTidyConfigPanel.wxs" src="CbClangTidyConfigPanel.cpp" hdr="CbClangTidyConfigPanel.h" fwddecl="1" i18n="1" name="CbClangTidyConfigPanel" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
