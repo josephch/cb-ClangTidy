@@ -3,8 +3,8 @@
  * http://www.gnu.org/licenses/lgpl-3.0.html
  */
 
-#ifndef CPPCHECKLISTLOG_H
-#define CPPCHECKLISTLOG_H
+#ifndef CBCLANGTIDYLISTLOG_H
+#define CBCLANGTIDYLISTLOG_H
 
 #include "loggers.h"
 #include <wx/event.h>
@@ -29,4 +29,4 @@ class CbClangTidyListLog : public ListCtrlLogger, public wxEvtHandler
     DECLARE_EVENT_TABLE()
 };
 
-#endif // CPPCHECKLISTLOG_H
+#endif // CBCLANGTIDYLISTLOG_H

@@ -7,8 +7,8 @@
  * License:   GPL
  **************************************************************/
 
-#ifndef CPPCHECK_H_INCLUDED
-#define CPPCHECK_H_INCLUDED
+#ifndef CBCLANGTIDY_H_INCLUDED
+#define CBCLANGTIDY_H_INCLUDED
 
 #include "cbplugin.h" // the base class we 're inheriting
 
@@ -65,4 +65,4 @@ class CbClangTidy : public cbToolPlugin
     wxString m_PATH;
 };
 
-#endif // CPPCHECK_H_INCLUDED
+#endif // CBCLANGTIDY_H_INCLUDED

@@ -181,7 +181,7 @@ int CbClangTidy::Execute()
 //{ CbClangTidy
 int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
 {
-    if (!DoVersion(_T("cppcheck"), _T("cppcheck_app")))
+    if (!DoVersion(_T("clang-tidy"), _T("clang-tidy_app")))
         return -1;
 
     TCbClangTidyAttribs CbClangTidyAttribs;
@@ -190,7 +190,7 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
     CbClangTidyAttribs.InputFileName = _T("CbClangTidyInput.txt");
     if (!InputFile.Create(CbClangTidyAttribs.InputFileName, true))
     {
-        cbMessageBox(_("Failed to create input file 'CbClangTidyInput.txt' for cppcheck.\nPlease check file/folder access rights."),
+        cbMessageBox(_("Failed to create input file 'CbClangTidyInput.txt' for clang-tidy.\nPlease check file/folder access rights."),
                      _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
         return -1;
     }
@@ -264,10 +264,10 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
 
 int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 {
-    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
+    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("clang-tidy"));
 
-    wxString CppExe = GetAppExecutable(_T("cppcheck"), _T("cppcheck_app"));
-    wxString CppArgs = cfg->Read(_T("cppcheck_args"), _T("--verbose --enable=all --enable=style --xml"));
+    wxString CppExe = GetAppExecutable(_T("clang-tidy"), _T("clang-tidy_app"));
+    wxString CppArgs = cfg->Read(_T("clang-tidy_args"), _T("--verbose --enable=all --enable=style --xml"));
     Manager::Get()->GetMacrosManager()->ReplaceMacros(CppArgs);
     wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" --file-list=") + CbClangTidyAttribs.InputFileName;
 
@@ -277,7 +277,7 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     }
 
     wxArrayString Output, Errors;
-    bool isOK = AppExecute(_T("cppcheck"), CommandLine, Output, Errors);
+    bool isOK = AppExecute(_T("clang-tidy"), CommandLine, Output, Errors);
     ::wxRemoveFile(CbClangTidyAttribs.InputFileName);
     if (!isOK)
         return -1;
@@ -299,7 +299,7 @@ void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
     Doc.Parse(Xml.ToAscii());
     if (Doc.Error())
     {
-        wxString msg = _("Failed to parse cppcheck XML file.\nProbably it's not produced correctly.");
+        wxString msg = _("Failed to parse clang-tidy XML file.\nProbably it's not produced correctly.");
         AppendToLog(msg);
         cbMessageBox(msg, _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
     }
@@ -337,7 +337,7 @@ void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
 
         if (!Doc.SaveFile("CbClangTidyResults.xml"))
         {
-            cbMessageBox(_("Failed to create output file 'CbClangTidyResults.xml' for cppcheck.\nPlease check file/folder access rights."),
+            cbMessageBox(_("Failed to create output file 'CbClangTidyResults.xml' for clang-tidy.\nPlease check file/folder access rights."),
                          _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
         }
     }
@@ -487,7 +487,7 @@ bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, w
 
 wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_cfg)
 {
-    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
+    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("clang-tidy"));
     wxString Executable = CbClangTidyConfigPanel::GetDefaultCbClangTidyExecutableName();
     if (cfg)
         Executable = cfg->Read(app_cfg, Executable);
@@ -495,7 +495,7 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
 
     AppendToLog(wxString::Format(_("Executable %s: '%s'."), app, Executable));
 
-    // Make sure file is accessible, otherwise add path to cppcheck to PATH envvar
+    // Make sure file is accessible, otherwise add path to clang-tidy to PATH envvar
     wxFileName fn(Executable);
     if (fn.IsOk() && fn.FileExists())
     {
@@ -503,7 +503,7 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
         AppendToLog(wxString::Format(_("Path to %s: '%s'."), app, AppPath));
 
         if (AppPath.Trim().IsEmpty())
-            return Executable; // Nothing to do, lets hope it works and cppcheck is in the PATH
+            return Executable; // Nothing to do, lets hope it works and clang-tidy is in the PATH
 
         bool PrependPath = true;
         wxString NewPathEnvVar = wxEmptyString;
@@ -515,7 +515,7 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
             wxString PathItem = PathList.Item(i);
             if (PathItem.IsSameAs(AppPath, (platform::windows ? false : true)))
             {
-                AppendToLog(_("Executable of cppcheck is in the path."));
+                AppendToLog(_("Executable of clang-tidy is in the path."));
                 PrependPath = false;
                 break; // Exit for-loop
             }

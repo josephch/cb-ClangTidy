@@ -45,10 +45,10 @@ class CbClangTidyConfigPanel : public cbConfigurationPanel
 
   protected:
     //(*Identifiers(CbClangTidyConfigPanel)
-    static const wxWindowID ID_TXT_CPP_CHECK_APP;
-    static const wxWindowID ID_BTN_CPPCHECK_APP;
-    static const wxWindowID ID_TXT_CPP_CHECK_ARGS;
-    static const wxWindowID ID_HYC_CPP_CHECK_WWW;
+    static const wxWindowID ID_TXT_CLANG_TIDY_APP;
+    static const wxWindowID ID_BTN_CLANG_TIDY_APP;
+    static const wxWindowID ID_TXT_CLANG_TIDY_ARGS;
+    static const wxWindowID ID_HYC_CLANG_TIDY_WWW;
     static const wxWindowID ID_STATICLINE1;
     static const wxWindowID ID_STATICLINE2;
     static const wxWindowID ID_CHO_OPERATION;
