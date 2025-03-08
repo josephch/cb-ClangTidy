@@ -26,13 +26,10 @@ class CbClangTidyConfigPanel : public cbConfigurationPanel
     virtual ~CbClangTidyConfigPanel();
 
     //(*Declarations(CbClangTidyConfigPanel)
-    wxChoice* choOperation;
     wxStaticLine* StaticLine1;
     wxStaticLine* StaticLine2;
     wxTextCtrl* txtCbClangTidyApp;
     wxTextCtrl* txtCbClangTidyArgs;
-    wxTextCtrl* txtVeraApp;
-    wxTextCtrl* txtVeraArgs;
     //*)
 
     /// @return the panel's title.
@@ -45,7 +42,6 @@ class CbClangTidyConfigPanel : public cbConfigurationPanel
     virtual void OnCancel() { ; }
 
     static wxString GetDefaultCbClangTidyExecutableName();
-    static wxString GetDefaultVeraExecutableName();
 
   protected:
     //(*Identifiers(CbClangTidyConfigPanel)
@@ -53,10 +49,6 @@ class CbClangTidyConfigPanel : public cbConfigurationPanel
     static const wxWindowID ID_BTN_CPPCHECK_APP;
     static const wxWindowID ID_TXT_CPP_CHECK_ARGS;
     static const wxWindowID ID_HYC_CPP_CHECK_WWW;
-    static const wxWindowID ID_TXT_VERA_APP;
-    static const wxWindowID ID_BTN_VERA;
-    static const wxWindowID ID_TXT_VERA_ARGS;
-    static const wxWindowID ID_HYC_VERA_WWW;
     static const wxWindowID ID_STATICLINE1;
     static const wxWindowID ID_STATICLINE2;
     static const wxWindowID ID_CHO_OPERATION;
@@ -65,7 +57,6 @@ class CbClangTidyConfigPanel : public cbConfigurationPanel
   private:
     //(*Handlers(CbClangTidyConfigPanel)
     void OnCbClangTidyApp(wxCommandEvent& event);
-    void OnVeraApp(wxCommandEvent& event);
     //*)
 
     DECLARE_EVENT_TABLE()

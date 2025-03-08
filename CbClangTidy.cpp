@@ -175,19 +175,7 @@ int CbClangTidy::Execute()
     AppendToLog(_("Switching working directory to : ") + BasePath);
     ::wxSetWorkingDirectory(BasePath);
 
-    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
-    int choice = cfg->ReadInt(_T("operation"), 0);
-
-    int result_cppcheck = 0;
-    int result_vera = 0;
-
-    if ((0 == choice) || (2 == choice))
-        result_cppcheck = ExecuteCbClangTidy(Project);
-
-    if ((1 == choice) || (2 == choice))
-        result_vera = ExecuteVera(Project);
-
-    return ((0 == result_cppcheck) && (0 == result_vera)) ? 0 : -1;
+    return ExecuteCbClangTidy(Project);
 }
 
 //{ CbClangTidy
@@ -449,95 +437,6 @@ bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
     return ErrorsPresent;
 }
 //} CbClangTidy
-
-//{ Vera
-int CbClangTidy::ExecuteVera(cbProject* Project)
-{
-    if (!DoVersion("vera++", "vera_app"))
-        return -1;
-
-    wxFile InputFile;
-    wxString InputsFile("VeraInput.txt");
-    if (!InputFile.Create(InputsFile, true))
-    {
-        cbMessageBox(wxString::Format(_("Failed to create input file '%s' for vera++.\nPlease check file/folder access rights."), InputsFile),
-                     _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
-        return -1;
-    }
-
-    for (FilesList::iterator it = Project->GetFilesList().begin(); it != Project->GetFilesList().end(); ++it)
-    {
-        ProjectFile* pf = *it;
-        // filter to avoid including non C/C++ files
-        if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftHeader) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
-        {
-            InputFile.Write(pf->relativeFilename + _T("\n"));
-        }
-    }
-    InputFile.Close();
-
-    return DoVeraExecute(InputsFile);
-}
-
-int CbClangTidy::DoVeraExecute(const wxString& InputsFile)
-{
-    ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
-
-    wxString VeraExe = GetAppExecutable(_T("vera++"), _T("vera_app"));
-    wxString VeraArgs = cfg->Read(_T("vera_args"), wxEmptyString);
-    Manager::Get()->GetMacrosManager()->ReplaceMacros(VeraArgs);
-    wxString CommandLine = VeraExe + _T(" ") + VeraArgs + _T("--inputs ") + InputsFile;
-
-    wxArrayString Output, Errors;
-    bool isOK = AppExecute(_T("vera++"), CommandLine, Output, Errors);
-    ::wxRemoveFile(InputsFile);
-    if (!isOK)
-        return -1;
-
-    DoVeraAnalysis(Output);
-
-    return 0;
-}
-
-void CbClangTidy::DoVeraAnalysis(const wxArrayString& Result)
-{
-    wxRegEx reVera(_T("(.+):([0-9]+):(.+)"));
-
-    bool ErrorsPresent = false;
-
-    for (size_t idxCount = 0; idxCount < Result.GetCount(); ++idxCount)
-    {
-        wxString Res = Result[idxCount];
-        if (reVera.Matches(Res))
-        {
-            wxString File = reVera.GetMatch(Res, 1);
-            wxString Line = reVera.GetMatch(Res, 2);
-            wxString Msg = reVera.GetMatch(Res, 3);
-
-            if (!File.IsEmpty() && !Line.IsEmpty() && !Msg.IsEmpty())
-            {
-                wxArrayString Arr;
-                Arr.Add(File);
-                Arr.Add(Line);
-                Arr.Add(Msg);
-                m_ListLog->Append(Arr);
-                ErrorsPresent = true;
-            }
-            else if (!Msg.IsEmpty())
-                AppendToLog(Msg); // might be something important like config not found...
-        }
-    }
-
-    if (ErrorsPresent)
-    {
-        if (Manager::Get()->GetLogManager())
-        {
-            CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
-            Manager::Get()->ProcessEvent(evtSwitch);
-        }
-    }
-}
-//} Vera
 
 bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
 {
