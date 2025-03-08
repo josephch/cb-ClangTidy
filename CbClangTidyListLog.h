@@ -14,11 +14,11 @@ class wxArrayInt;
 class wxCommandEvent;
 class wxWindow;
 
-class CppCheckListLog : public ListCtrlLogger, public wxEvtHandler
+class CbClangTidyListLog : public ListCtrlLogger, public wxEvtHandler
 {
 public:
-    CppCheckListLog(const wxArrayString& Titles, wxArrayInt& Widths);
-    ~CppCheckListLog();
+    CbClangTidyListLog(const wxArrayString& Titles, wxArrayInt& Widths);
+    ~CbClangTidyListLog();
     wxWindow* CreateControl(wxWindow* Parent);
     void DestroyControls();
 

@@ -10,46 +10,46 @@
 #endif
 #include "cbstyledtextctrl.h"
 
-#include "CppCheckListLog.h"
+#include "CbClangTidyListLog.h"
 
 namespace
 {
     const int ID_List = wxNewId();
 };
 
-BEGIN_EVENT_TABLE(CppCheckListLog, wxEvtHandler)
+BEGIN_EVENT_TABLE(CbClangTidyListLog, wxEvtHandler)
 //
 END_EVENT_TABLE()
 
-CppCheckListLog::CppCheckListLog(const wxArrayString& Titles, wxArrayInt& Widths)
+CbClangTidyListLog::CbClangTidyListLog(const wxArrayString& Titles, wxArrayInt& Widths)
     : ListCtrlLogger(Titles, Widths)
 {
     //ctor
 }
 
-CppCheckListLog::~CppCheckListLog()
+CbClangTidyListLog::~CbClangTidyListLog()
 {
     //dtor
     Disconnect(ID_List, -1, wxEVT_COMMAND_LIST_ITEM_ACTIVATED,
                (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-               &CppCheckListLog::OnDoubleClick);
+               &CbClangTidyListLog::OnDoubleClick);
 }
 
 
 // TODO : use Getter instead of protected 'control'
 
-wxWindow* CppCheckListLog::CreateControl(wxWindow* parent)
+wxWindow* CbClangTidyListLog::CreateControl(wxWindow* parent)
 {
     ListCtrlLogger::CreateControl(parent);
     control->SetId(ID_List);
     Connect(ID_List, -1, wxEVT_COMMAND_LIST_ITEM_ACTIVATED,
             (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction)
-            &CppCheckListLog::OnDoubleClick);
+            &CbClangTidyListLog::OnDoubleClick);
     Manager::Get()->GetAppWindow()->PushEventHandler(this);
     return control;
 }
 
-void CppCheckListLog::DestroyControls()
+void CbClangTidyListLog::DestroyControls()
 {
     if ( !Manager::Get()->IsAppShuttingDown() )
     {
@@ -57,7 +57,7 @@ void CppCheckListLog::DestroyControls()
     }
 }
 
-void CppCheckListLog::OnDoubleClick(wxCommandEvent& /*event*/)
+void CbClangTidyListLog::OnDoubleClick(wxCommandEvent& /*event*/)
 {
     // go to the relevant file/line
     if (control->GetSelectedItemCount() == 0)
@@ -68,7 +68,7 @@ void CppCheckListLog::OnDoubleClick(wxCommandEvent& /*event*/)
     SyncEditor(Index);
 } // end of OnDoubleClick
 
-void CppCheckListLog::SyncEditor(int SelIndex)
+void CbClangTidyListLog::SyncEditor(int SelIndex)
 {
     wxFileName Filename(control->GetItemText(SelIndex));
     wxString File;

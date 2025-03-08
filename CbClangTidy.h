@@ -1,6 +1,6 @@
 /***************************************************************
- * Name:      CppCheck.h
- * Purpose:   Code::Blocks CppCheck plugin: main functions
+ * Name:      CbClangTidy.h
+ * Purpose:   Code::Blocks CbClangTidy plugin: main functions
  * Author:    Lieven de Cock (aka killerbot)
  * Created:   12/11/2009
  * Copyright: (c) Lieven de Cock (aka killerbot)
@@ -18,13 +18,13 @@ class wxArrayString;
 class cbProject;
 class ConfigManager;
 class TextCtrlLogger;
-class CppCheckListLog;
+class CbClangTidyListLog;
 
-class CppCheck : public cbToolPlugin
+class CbClangTidy : public cbToolPlugin
 {
 public:
-    CppCheck();
-    ~CppCheck();
+    CbClangTidy();
+    ~CbClangTidy();
     void OnAttach(); // fires when the plugin is attached to the application
     void OnRelease(bool appShutDown); // fires when the plugin is released from the application
 
@@ -35,21 +35,21 @@ private:
     void WriteToLog(const wxString& Text);
     void AppendToLog(const wxString& Text);
 
-    //{ CppCheck
-    struct SCppCheckAttribs
+    //{ CbClangTidy
+    struct SCbClangTidyAttribs
     {
       wxString InputFileName;
       wxString IncludeList;
       wxString DefineList;
     };
-    typedef struct SCppCheckAttribs TCppCheckAttribs;
+    typedef struct SCbClangTidyAttribs TCbClangTidyAttribs;
 
-    int ExecuteCppCheck(cbProject* Project);
-    int  DoCppCheckExecute(TCppCheckAttribs& CppCheckAttribs);
-    void DoCppCheckAnalysis(const wxString& Xml);
-    bool DoCppCheckParseXMLv1(TiXmlHandle& Handle);
-    bool DoCppCheckParseXMLv2(TiXmlHandle& Handle);
-    //} CppCheck
+    int ExecuteCbClangTidy(cbProject* Project);
+    int  DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs);
+    void DoCbClangTidyAnalysis(const wxString& Xml);
+    bool DoCbClangTidyParseXMLv1(TiXmlHandle& Handle);
+    bool DoCbClangTidyParseXMLv2(TiXmlHandle& Handle);
+    //} CbClangTidy
 
     //{ Vera
     int ExecuteVera(cbProject* Project);
@@ -61,8 +61,8 @@ private:
     bool AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors);
     wxString GetAppExecutable(const wxString& app, const wxString& app_cfg);
 
-    TextCtrlLogger*  m_CppCheckLog;      //!< log tab in the message pane
-    CppCheckListLog* m_ListLog;          //!< log tab to click/double click to take you to offending line of code
+    TextCtrlLogger*  m_CbClangTidyLog;      //!< log tab in the message pane
+    CbClangTidyListLog* m_ListLog;          //!< log tab to click/double click to take you to offending line of code
     int              m_LogPageIndex;     //!< index of our log tab (can this change during run time ??)
     int              m_ListLogPageIndex; //!< index of our list log tab
 

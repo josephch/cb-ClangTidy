@@ -1,6 +1,6 @@
 /***************************************************************
- * Name:      CppCheck.cpp
- * Purpose:   Code::Blocks CppCheck plugin: main functions
+ * Name:      CbClangTidy.cpp
+ * Purpose:   Code::Blocks CbClangTidy plugin: main functions
  * Author:    Lieven de Cock (aka killerbot)
  * Created:   12/11/2009
  * Copyright: (c) Lieven de Cock (aka killerbot)
@@ -38,14 +38,14 @@
 #include "filefilters.h"
 #include "loggers.h"
 
-#include "CppCheck.h"
-#include "CppCheckListLog.h"
-#include "ConfigPanel.h"
+#include "CbClangTidy.h"
+#include "CbClangTidyListLog.h"
+#include "CbClangTidyConfigPanel.h"
 
 // Register the plugin
 namespace
 {
-    PluginRegistrant<CppCheck> reg(_T("CppCheck"));
+    PluginRegistrant<CbClangTidy> reg(_T("CbClangTidy"));
 };
 
 namespace
@@ -66,8 +66,8 @@ namespace
 }; // namespace
 
 
-CppCheck::CppCheck() :
-    m_CppCheckLog(0),
+CbClangTidy::CbClangTidy() :
+    m_CbClangTidyLog(0),
     m_ListLog(0),
     m_LogPageIndex(0), // good init value ???
     m_ListLogPageIndex(0),
@@ -75,11 +75,11 @@ CppCheck::CppCheck() :
 {
 }
 
-CppCheck::~CppCheck()
+CbClangTidy::~CbClangTidy()
 {
 }
 
-void CppCheck::OnAttach()
+void CbClangTidy::OnAttach()
 {
     // do whatever initialization you need for your plugin
     // NOTE: after this function, the inherited member variable
@@ -89,26 +89,26 @@ void CppCheck::OnAttach()
     // (see: does not need) this plugin...
     if (LogManager* LogMan = Manager::Get()->GetLogManager())
     {
-        m_CppCheckLog = new TextCtrlLogger();
-        m_LogPageIndex = LogMan->SetLog(m_CppCheckLog);
-        LogMan->Slot(m_LogPageIndex).title = _("CppCheck/Vera++");
-        CodeBlocksLogEvent evtAdd1(cbEVT_ADD_LOG_WINDOW, m_CppCheckLog, LogMan->Slot(m_LogPageIndex).title);
+        m_CbClangTidyLog = new TextCtrlLogger();
+        m_LogPageIndex = LogMan->SetLog(m_CbClangTidyLog);
+        LogMan->Slot(m_LogPageIndex).title = _("CbClangTidy");
+        CodeBlocksLogEvent evtAdd1(cbEVT_ADD_LOG_WINDOW, m_CbClangTidyLog, LogMan->Slot(m_LogPageIndex).title);
         Manager::Get()->ProcessEvent(evtAdd1);
 
         wxArrayString Titles; wxArrayInt Widths;
         Titles.Add(_("File"));    Widths.Add(128);
         Titles.Add(_("Line"));    Widths.Add(48);
         Titles.Add(_("Message")); Widths.Add(640);
-        m_ListLog = new CppCheckListLog(Titles, Widths);
+        m_ListLog = new CbClangTidyListLog(Titles, Widths);
 
         m_ListLogPageIndex = LogMan->SetLog(m_ListLog);
-        LogMan->Slot(m_ListLogPageIndex).title = _("CppCheck/Vera++ messages");
+        LogMan->Slot(m_ListLogPageIndex).title = _("CbClangTidy messages");
         CodeBlocksLogEvent evtAdd2(cbEVT_ADD_LOG_WINDOW, m_ListLog, LogMan->Slot(m_ListLogPageIndex).title);
         Manager::Get()->ProcessEvent(evtAdd2);
     }
 }
 
-void CppCheck::OnRelease(bool /*appShutDown*/)
+void CbClangTidy::OnRelease(bool /*appShutDown*/)
 {
     // do de-initialization for your plugin
     // if appShutDown is false, the plugin is unloaded because Code::Blocks is being shut down,
@@ -117,9 +117,9 @@ void CppCheck::OnRelease(bool /*appShutDown*/)
     // IsAttached() will be FALSE...
     if (Manager::Get()->GetLogManager())
     {
-        if (m_CppCheckLog)
+        if (m_CbClangTidyLog)
         {
-            CodeBlocksLogEvent evt(cbEVT_REMOVE_LOG_WINDOW, m_CppCheckLog);
+            CodeBlocksLogEvent evt(cbEVT_REMOVE_LOG_WINDOW, m_CbClangTidyLog);
             Manager::Get()->ProcessEvent(evt);
         }
         if (m_ListLog)
@@ -129,38 +129,38 @@ void CppCheck::OnRelease(bool /*appShutDown*/)
             Manager::Get()->ProcessEvent(evt);
         }
     }
-    m_CppCheckLog = 0;
+    m_CbClangTidyLog = 0;
     m_ListLog = 0;
 }
 
-void CppCheck::WriteToLog(const wxString& Text)
+void CbClangTidy::WriteToLog(const wxString& Text)
 {
-    m_CppCheckLog->Clear();
+    m_CbClangTidyLog->Clear();
     AppendToLog(Text);
 }
 
-void CppCheck::AppendToLog(const wxString& Text)
+void CbClangTidy::AppendToLog(const wxString& Text)
 {
     if (LogManager* LogMan = Manager::Get()->GetLogManager())
     {
-        CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_CppCheckLog);
+        CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_CbClangTidyLog);
         Manager::Get()->ProcessEvent(evtSwitch);
         LogMan->Log(Text, m_LogPageIndex);
     }
 }
 
-cbConfigurationPanel* CppCheck::GetConfigurationPanel(wxWindow* parent)
+cbConfigurationPanel* CbClangTidy::GetConfigurationPanel(wxWindow* parent)
 {
     // Called by plugin manager to show config panel in global Setting Dialog
     if ( !IsAttached() )
         return NULL;
 
-    return new ConfigPanel(parent);
+    return new CbClangTidyConfigPanel(parent);
 }
 
-int CppCheck::Execute()
+int CbClangTidy::Execute()
 {
-    WriteToLog(_("Running cppcheck/vera++ analysis... please wait..."));
+    WriteToLog(_("Running clang-tidy analysis... please wait..."));
 
     if ( !CheckRequirements() )
         return -1;
@@ -181,7 +181,7 @@ int CppCheck::Execute()
     int result_vera     = 0;
 
     if ((0==choice) || (2==choice))
-      result_cppcheck = ExecuteCppCheck(Project);
+      result_cppcheck = ExecuteCbClangTidy(Project);
 
     if ((1==choice) || (2==choice))
       result_vera = ExecuteVera(Project);
@@ -189,19 +189,19 @@ int CppCheck::Execute()
     return ((0==result_cppcheck) && (0==result_vera)) ? 0 : -1;
 }
 
-//{ CppCheck
-int CppCheck::ExecuteCppCheck(cbProject* Project)
+//{ CbClangTidy
+int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
 {
     if ( !DoVersion(_T("cppcheck"), _T("cppcheck_app")) )
         return -1;
 
-    TCppCheckAttribs CppCheckAttribs;
+    TCbClangTidyAttribs CbClangTidyAttribs;
 
     wxFile InputFile;
-    CppCheckAttribs.InputFileName = _T("CppCheckInput.txt");
-    if ( !InputFile.Create(CppCheckAttribs.InputFileName, true) )
+    CbClangTidyAttribs.InputFileName = _T("CbClangTidyInput.txt");
+    if ( !InputFile.Create(CbClangTidyAttribs.InputFileName, true) )
     {
-        cbMessageBox(_("Failed to create input file 'CppCheckInput.txt' for cppcheck.\nPlease check file/folder access rights."),
+        cbMessageBox(_("Failed to create input file 'CbClangTidyInput.txt' for cppcheck.\nPlease check file/folder access rights."),
                      _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
         return -1;
     }
@@ -235,7 +235,7 @@ int CppCheck::ExecuteCppCheck(cbProject* Project)
             MacrosMgr->ReplaceMacros(IncludeDir, Target);
         else
             MacrosMgr->ReplaceMacros(IncludeDir);
-        CppCheckAttribs.IncludeList += _T("-I\"") + IncludeDir + _T("\" ");
+        CbClangTidyAttribs.IncludeList += _T("-I\"") + IncludeDir + _T("\" ");
     }
     if (Target)
     {
@@ -245,7 +245,7 @@ int CppCheck::ExecuteCppCheck(cbProject* Project)
         {
             wxString IncludeDir(targetIncludeDirs[Dir]);
             MacrosMgr->ReplaceMacros(IncludeDir, Target);
-            CppCheckAttribs.IncludeList += _T("-I\"") + IncludeDir + _T("\" ");
+            CbClangTidyAttribs.IncludeList += _T("-I\"") + IncludeDir + _T("\" ");
         }
     }
 
@@ -260,7 +260,7 @@ int CppCheck::ExecuteCppCheck(cbProject* Project)
             MacrosMgr->ReplaceMacros(Define);
 
         if ( Define.StartsWith(_T("-D")) )
-            CppCheckAttribs.DefineList += Define + _T(" ");
+            CbClangTidyAttribs.DefineList += Define + _T(" ");
     }
     if (Target)
     {
@@ -272,14 +272,14 @@ int CppCheck::ExecuteCppCheck(cbProject* Project)
             MacrosMgr->ReplaceMacros(Define, Target);
 
             if ( Define.StartsWith(_T("-D")) )
-                CppCheckAttribs.DefineList += Define + _T(" ");
+                CbClangTidyAttribs.DefineList += Define + _T(" ");
         }
     }
 
-    return DoCppCheckExecute(CppCheckAttribs);
+    return DoCbClangTidyExecute(CbClangTidyAttribs);
 }
 
-int CppCheck::DoCppCheckExecute(TCppCheckAttribs& CppCheckAttribs)
+int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
 
@@ -287,29 +287,29 @@ int CppCheck::DoCppCheckExecute(TCppCheckAttribs& CppCheckAttribs)
     wxString CppArgs = cfg->Read(_T("cppcheck_args"), _T("--verbose --enable=all --enable=style --xml"));
     Manager::Get()->GetMacrosManager()->ReplaceMacros(CppArgs);
     wxString CommandLine = CppExe + _T(" ") + CppArgs
-                         + _T(" --file-list=") + CppCheckAttribs.InputFileName;
+                         + _T(" --file-list=") + CbClangTidyAttribs.InputFileName;
 
-    if ( !CppCheckAttribs.IncludeList.IsEmpty() )
+    if ( !CbClangTidyAttribs.IncludeList.IsEmpty() )
     {
-        CommandLine += _T(" ") + CppCheckAttribs.IncludeList.Trim() + _T(" ")
-                     + CppCheckAttribs.DefineList.Trim();
+        CommandLine += _T(" ") + CbClangTidyAttribs.IncludeList.Trim() + _T(" ")
+                     + CbClangTidyAttribs.DefineList.Trim();
     }
 
     wxArrayString Output, Errors;
     bool isOK = AppExecute(_T("cppcheck"), CommandLine, Output, Errors);
-    ::wxRemoveFile(CppCheckAttribs.InputFileName);
+    ::wxRemoveFile(CbClangTidyAttribs.InputFileName);
     if (!isOK)
         return -1;
 
     wxString Xml;
     for (size_t idxCount = 0; idxCount < Errors.GetCount(); ++idxCount)
         Xml += Errors[idxCount];
-    DoCppCheckAnalysis(Xml);
+    DoCbClangTidyAnalysis(Xml);
 
     return 0;
 }
 
-void CppCheck::DoCppCheckAnalysis(const wxString& Xml)
+void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
 {
     // clear the list
     m_ListLog->Clear();
@@ -333,16 +333,16 @@ void CppCheck::DoCppCheckAnalysis(const wxString& Xml)
         {
             wxString Version = wxString::FromAscii(resultNode->Attribute("version"));
             if ( Version.IsSameAs(wxT("2")) )
-                ErrorsPresent = DoCppCheckParseXMLv2(Handle);
+                ErrorsPresent = DoCbClangTidyParseXMLv2(Handle);
             else
             {
-                cbMessageBox(_("Unsupported XML file version of CppCheck."),
+                cbMessageBox(_("Unsupported XML file version of CbClangTidy."),
                              _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
             }
         }
         else
         {
-            ErrorsPresent = DoCppCheckParseXMLv1(Handle);
+            ErrorsPresent = DoCbClangTidyParseXMLv1(Handle);
         }
 
         if (ErrorsPresent)
@@ -354,15 +354,15 @@ void CppCheck::DoCppCheckAnalysis(const wxString& Xml)
             }
         }
 
-        if ( !Doc.SaveFile("CppCheckResults.xml") )
+        if ( !Doc.SaveFile("CbClangTidyResults.xml") )
         {
-            cbMessageBox(_("Failed to create output file 'CppCheckResults.xml' for cppcheck.\nPlease check file/folder access rights."),
+            cbMessageBox(_("Failed to create output file 'CbClangTidyResults.xml' for cppcheck.\nPlease check file/folder access rights."),
                          _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
         }
     }
 }
 
-bool CppCheck::DoCppCheckParseXMLv1(TiXmlHandle& Handle)
+bool CbClangTidy::DoCbClangTidyParseXMLv1(TiXmlHandle& Handle)
 {
     bool ErrorsPresent = false;
 
@@ -402,7 +402,7 @@ bool CppCheck::DoCppCheckParseXMLv1(TiXmlHandle& Handle)
     return ErrorsPresent;
 }
 
-bool CppCheck::DoCppCheckParseXMLv2(TiXmlHandle& Handle)
+bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
 {
     bool ErrorsPresent = false;
 
@@ -455,10 +455,10 @@ bool CppCheck::DoCppCheckParseXMLv2(TiXmlHandle& Handle)
 
     return ErrorsPresent;
 }
-//} CppCheck
+//} CbClangTidy
 
 //{ Vera
-int CppCheck::ExecuteVera(cbProject* Project)
+int CbClangTidy::ExecuteVera(cbProject* Project)
 {
     if ( !DoVersion("vera++", "vera_app") )
         return -1;
@@ -492,7 +492,7 @@ int CppCheck::ExecuteVera(cbProject* Project)
     return DoVeraExecute(InputsFile);
 }
 
-int CppCheck::DoVeraExecute(const wxString& InputsFile)
+int CbClangTidy::DoVeraExecute(const wxString& InputsFile)
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
 
@@ -513,7 +513,7 @@ int CppCheck::DoVeraExecute(const wxString& InputsFile)
     return 0;
 }
 
-void CppCheck::DoVeraAnalysis(const wxArrayString& Result)
+void CbClangTidy::DoVeraAnalysis(const wxArrayString& Result)
 {
   wxRegEx reVera(_T("(.+):([0-9]+):(.+)"));
 
@@ -553,7 +553,7 @@ void CppCheck::DoVeraAnalysis(const wxArrayString& Result)
 }
 //} Vera
 
-bool CppCheck::DoVersion(const wxString& app, const wxString& app_cfg)
+bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
 {
     wxString app_exe = GetAppExecutable(app, app_cfg);
 
@@ -565,7 +565,7 @@ bool CppCheck::DoVersion(const wxString& app, const wxString& app_cfg)
     return true;
 }
 
-bool CppCheck::AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
+bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
 {
     wxWindowDisabler disableAll;
     wxBusyInfo running(wxString::Format(_("Running %s... please wait (this may take several minutes)..."), app),
@@ -598,10 +598,10 @@ bool CppCheck::AppExecute(const wxString& app, const wxString& CommandLine, wxAr
     return true;
 }
 
-wxString CppCheck::GetAppExecutable(const wxString& app, const wxString& app_cfg)
+wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_cfg)
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
-    wxString Executable = ConfigPanel::GetDefaultCppCheckExecutableName();
+    wxString Executable = CbClangTidyConfigPanel::GetDefaultCbClangTidyExecutableName();
     if (cfg)
         Executable = cfg->Read(app_cfg, Executable);
     Manager::Get()->GetMacrosManager()->ReplaceMacros(Executable);

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_plugin_manifest_file>
     <SdkVersion major="1" minor="10" release="0" />
-    <Plugin name="CppCheck">
-        <Value title="CppCheck" />
+    <Plugin name="CbClangTidy">
+        <Value title="CbClangTidy" />
         <Value version="1.1" />
-        <Value description="A simple plugin for launching CppCheck on the current project." />
-        <Value author="killerbot" />
-        <Value authorEmail="killerbot@telenet.be" />
+        <Value description="A simple plugin for launching clang-tidy on the current project." />
+        <Value author="Christo Joseph" />
+        <Value authorEmail="christo.j@gmail.com" />
         <Value authorWebsite="" />
-        <Value thanksTo="All the Code::Blocks team and the CppCheck team!" />
+        <Value thanksTo="All the Code::Blocks team and the CppCheck team and KillerBot" />
         <Value license="GPL" />
     </Plugin>
 </CodeBlocks_plugin_manifest_file>

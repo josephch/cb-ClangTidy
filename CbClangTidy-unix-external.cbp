@@ -20,6 +20,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config --libs codeblocks`" />
+					<Add option="`pkg-config --libs tinyxml`" />
 					<Add option="`wx-config --libs`" />
 				</Linker>
 				<ExtraCommands>
@@ -39,13 +40,13 @@
 		<Linker>
 			<Add option="-Wl,--no-undefined" />
 		</Linker>
-		<Unit filename="CbClangTidyConfigPanel.cpp" />
-		<Unit filename="CbClangTidyConfigPanel.h" />
 		<Unit filename="CbClangTidy.cpp" />
 		<Unit filename="CbClangTidy.h" />
+		<Unit filename="CbClangTidyConfigPanel.cpp" />
+		<Unit filename="CbClangTidyConfigPanel.h" />
 		<Unit filename="CbClangTidyListLog.cpp" />
 		<Unit filename="CbClangTidyListLog.h" />
-		<Unit filename="wxsmith/ConfigPanel.wxs" />
+		<Unit filename="wxsmith/CbClangTidyConfigPanel.wxs" />
 		<Extensions>
 			<wxsmith version="1">
 				<resources>

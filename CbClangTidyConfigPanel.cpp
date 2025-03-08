@@ -1,11 +1,11 @@
-#include "ConfigPanel.h"
+#include "CbClangTidyConfigPanel.h"
 
 #include <wx/filedlg.h>
 
 #include <manager.h>
 #include <configmanager.h>
 
-//(*InternalHeaders(ConfigPanel)
+//(*InternalHeaders(CbClangTidyConfigPanel)
 #include <wx/button.h>
 #include <wx/choice.h>
 #include <wx/hyperlink.h>
@@ -17,42 +17,42 @@
 #include <wx/textctrl.h>
 //*)
 
-//(*IdInit(ConfigPanel)
-const wxWindowID ConfigPanel::ID_TXT_CPP_CHECK_APP = wxNewId();
-const wxWindowID ConfigPanel::ID_BTN_CPPCHECK_APP = wxNewId();
-const wxWindowID ConfigPanel::ID_TXT_CPP_CHECK_ARGS = wxNewId();
-const wxWindowID ConfigPanel::ID_HYC_CPP_CHECK_WWW = wxNewId();
-const wxWindowID ConfigPanel::ID_TXT_VERA_APP = wxNewId();
-const wxWindowID ConfigPanel::ID_BTN_VERA = wxNewId();
-const wxWindowID ConfigPanel::ID_TXT_VERA_ARGS = wxNewId();
-const wxWindowID ConfigPanel::ID_HYC_VERA_WWW = wxNewId();
-const wxWindowID ConfigPanel::ID_STATICLINE1 = wxNewId();
-const wxWindowID ConfigPanel::ID_STATICLINE2 = wxNewId();
-const wxWindowID ConfigPanel::ID_CHO_OPERATION = wxNewId();
+//(*IdInit(CbClangTidyConfigPanel)
+const wxWindowID CbClangTidyConfigPanel::ID_TXT_CPP_CHECK_APP = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_BTN_CPPCHECK_APP = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_TXT_CPP_CHECK_ARGS = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_HYC_CPP_CHECK_WWW = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_TXT_VERA_APP = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_BTN_VERA = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_TXT_VERA_ARGS = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_HYC_VERA_WWW = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_STATICLINE1 = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_STATICLINE2 = wxNewId();
+const wxWindowID CbClangTidyConfigPanel::ID_CHO_OPERATION = wxNewId();
 //*)
 
-BEGIN_EVENT_TABLE(ConfigPanel,wxPanel)
-    //(*EventTable(ConfigPanel)
+BEGIN_EVENT_TABLE(CbClangTidyConfigPanel,wxPanel)
+    //(*EventTable(CbClangTidyConfigPanel)
     //*)
 END_EVENT_TABLE()
 
-ConfigPanel::ConfigPanel(wxWindow* parent)
+CbClangTidyConfigPanel::CbClangTidyConfigPanel(wxWindow* parent)
 {
-    //(*Initialize(ConfigPanel)
-    wxBoxSizer* bszCppCheckApp;
+    //(*Initialize(CbClangTidyConfigPanel)
+    wxBoxSizer* bszCbClangTidyApp;
     wxBoxSizer* bszMain;
     wxBoxSizer* bszVeraApp;
-    wxButton* btnCppCheckApp;
+    wxButton* btnCbClangTidyApp;
     wxButton* btnVeraApp;
     wxFlexGridSizer* flsMain;
-    wxHyperlinkCtrl* hycCppCheckWWW;
+    wxHyperlinkCtrl* hycCbClangTidyWWW;
     wxHyperlinkCtrl* hycVeraWWW;
     wxStaticLine* slSeparatorLeft;
     wxStaticLine* slSeparatorRight;
-    wxStaticText* lblCppCheckApp;
-    wxStaticText* lblCppCheckArgs;
-    wxStaticText* lblCppCheckArgsComment;
-    wxStaticText* lblCppCheckWWW;
+    wxStaticText* lblCbClangTidyApp;
+    wxStaticText* lblCbClangTidyArgs;
+    wxStaticText* lblCbClangTidyArgsComment;
+    wxStaticText* lblCbClangTidyWWW;
     wxStaticText* lblOperation;
     wxStaticText* lblVeraApp;
     wxStaticText* lblVeraArgs;
@@ -63,27 +63,27 @@ ConfigPanel::ConfigPanel(wxWindow* parent)
     bszMain = new wxBoxSizer(wxHORIZONTAL);
     flsMain = new wxFlexGridSizer(0, 2, 0, 0);
     flsMain->AddGrowableCol(1);
-    lblCppCheckApp = new wxStaticText(this, wxID_ANY, _("CppCheck application:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
-    flsMain->Add(lblCppCheckApp, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
-    bszCppCheckApp = new wxBoxSizer(wxHORIZONTAL);
-    txtCppCheckApp = new wxTextCtrl(this, ID_TXT_CPP_CHECK_APP, _("cppcheck"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_APP"));
-    bszCppCheckApp->Add(txtCppCheckApp, 1, wxEXPAND, 5);
-    btnCppCheckApp = new wxButton(this, ID_BTN_CPPCHECK_APP, _T("..."), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BTN_CPPCHECK_APP"));
-    btnCppCheckApp->SetMinSize(wxSize(30,-1));
-    bszCppCheckApp->Add(btnCppCheckApp, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
-    flsMain->Add(bszCppCheckApp, 1, wxLEFT|wxEXPAND, 5);
-    lblCppCheckArgs = new wxStaticText(this, wxID_ANY, _("CppCheck arguments:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
-    flsMain->Add(lblCppCheckArgs, 0, wxTOP|wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
-    txtCppCheckArgs = new wxTextCtrl(this, ID_TXT_CPP_CHECK_ARGS, _("--verbose --enable=all --enable=style --xml"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_ARGS"));
-    txtCppCheckArgs->SetMinSize(wxSize(240,-1));
-    flsMain->Add(txtCppCheckArgs, 1, wxTOP|wxLEFT|wxEXPAND, 5);
-    lblCppCheckArgsComment = new wxStaticText(this, wxID_ANY, _("(before \"--file-list\")"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
-    flsMain->Add(lblCppCheckArgsComment, 0, wxLEFT|wxALIGN_TOP, 5);
+    lblCbClangTidyApp = new wxStaticText(this, wxID_ANY, _("CbClangTidy application:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    flsMain->Add(lblCbClangTidyApp, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
+    bszCbClangTidyApp = new wxBoxSizer(wxHORIZONTAL);
+    txtCbClangTidyApp = new wxTextCtrl(this, ID_TXT_CPP_CHECK_APP, _("cppcheck"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_APP"));
+    bszCbClangTidyApp->Add(txtCbClangTidyApp, 1, wxEXPAND, 5);
+    btnCbClangTidyApp = new wxButton(this, ID_BTN_CPPCHECK_APP, _T("..."), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_BTN_CPPCHECK_APP"));
+    btnCbClangTidyApp->SetMinSize(wxSize(30,-1));
+    bszCbClangTidyApp->Add(btnCbClangTidyApp, 0, wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
+    flsMain->Add(bszCbClangTidyApp, 1, wxLEFT|wxEXPAND, 5);
+    lblCbClangTidyArgs = new wxStaticText(this, wxID_ANY, _("CbClangTidy arguments:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    flsMain->Add(lblCbClangTidyArgs, 0, wxTOP|wxLEFT|wxALIGN_CENTER_VERTICAL, 5);
+    txtCbClangTidyArgs = new wxTextCtrl(this, ID_TXT_CPP_CHECK_ARGS, _("--verbose --enable=all --enable=style --xml"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_ARGS"));
+    txtCbClangTidyArgs->SetMinSize(wxSize(240,-1));
+    flsMain->Add(txtCbClangTidyArgs, 1, wxTOP|wxLEFT|wxEXPAND, 5);
+    lblCbClangTidyArgsComment = new wxStaticText(this, wxID_ANY, _("(before \"--file-list\")"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    flsMain->Add(lblCbClangTidyArgsComment, 0, wxLEFT|wxALIGN_TOP, 5);
     flsMain->Add(-1,-1,1, wxLEFT|wxEXPAND, 5);
-    lblCppCheckWWW = new wxStaticText(this, wxID_ANY, _("CppCheck homepage:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
-    flsMain->Add(lblCppCheckWWW, 0, wxTOP|wxLEFT|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
-    hycCppCheckWWW = new wxHyperlinkCtrl(this, ID_HYC_CPP_CHECK_WWW, _("http://cppcheck.sourceforge.net"), wxEmptyString, wxDefaultPosition, wxDefaultSize, wxHL_CONTEXTMENU|wxHL_ALIGN_CENTRE, _T("ID_HYC_CPP_CHECK_WWW"));
-    flsMain->Add(hycCppCheckWWW, 1, wxTOP|wxLEFT|wxEXPAND, 5);
+    lblCbClangTidyWWW = new wxStaticText(this, wxID_ANY, _("CbClangTidy homepage:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    flsMain->Add(lblCbClangTidyWWW, 0, wxTOP|wxLEFT|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
+    hycCbClangTidyWWW = new wxHyperlinkCtrl(this, ID_HYC_CPP_CHECK_WWW, _("http://cppcheck.sourceforge.net"), wxEmptyString, wxDefaultPosition, wxDefaultSize, wxHL_CONTEXTMENU|wxHL_ALIGN_CENTRE, _T("ID_HYC_CPP_CHECK_WWW"));
+    flsMain->Add(hycCbClangTidyWWW, 1, wxTOP|wxLEFT|wxEXPAND, 5);
     slSeparatorLeft = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(10,-1), wxLI_HORIZONTAL, _T("wxID_ANY"));
     flsMain->Add(slSeparatorLeft, 0, wxTOP|wxBOTTOM|wxLEFT|wxEXPAND, 5);
     slSeparatorRight = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(10,-1), wxLI_HORIZONTAL, _T("wxID_ANY"));
@@ -115,24 +115,24 @@ ConfigPanel::ConfigPanel(wxWindow* parent)
     lblOperation = new wxStaticText(this, wxID_ANY, _("Select operation:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
     flsMain->Add(lblOperation, 0, wxLEFT|wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL, 5);
     choOperation = new wxChoice(this, ID_CHO_OPERATION, wxDefaultPosition, wxDefaultSize, 0, 0, 0, wxDefaultValidator, _T("ID_CHO_OPERATION"));
-    choOperation->SetSelection( choOperation->Append(_("CppCheck only")) );
+    choOperation->SetSelection( choOperation->Append(_("CbClangTidy only")) );
     choOperation->Append(_("Vera++ only"));
-    choOperation->Append(_("CppCheck and Vera++"));
+    choOperation->Append(_("CbClangTidy and Vera++"));
     flsMain->Add(choOperation, 1, wxLEFT|wxEXPAND, 5);
     bszMain->Add(flsMain, 1, wxEXPAND, 5);
     SetSizer(bszMain);
     bszMain->SetSizeHints(this);
 
-    Connect(ID_BTN_CPPCHECK_APP,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(ConfigPanel::OnCppCheckApp));
-    Connect(ID_BTN_VERA,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(ConfigPanel::OnVeraApp));
+    Connect(ID_BTN_CPPCHECK_APP,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(CbClangTidyConfigPanel::OnCbClangTidyApp));
+    Connect(ID_BTN_VERA,wxEVT_COMMAND_BUTTON_CLICKED,wxCommandEventHandler(CbClangTidyConfigPanel::OnVeraApp));
     //*)
 
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
     if (cfg)
     {
-        txtCppCheckApp->SetValue( cfg->Read(_T("cppcheck_app"),
-                                  GetDefaultCppCheckExecutableName()) );
-        txtCppCheckArgs->SetValue( cfg->Read(_T("cppcheck_args"),
+        txtCbClangTidyApp->SetValue( cfg->Read(_T("cppcheck_app"),
+                                  GetDefaultCbClangTidyExecutableName()) );
+        txtCbClangTidyArgs->SetValue( cfg->Read(_T("cppcheck_args"),
                                    _T("--verbose --enable=all --enable=style --xml")) );
 
         txtVeraApp->SetValue( cfg->Read(_T("vera_app"),
@@ -143,18 +143,18 @@ ConfigPanel::ConfigPanel(wxWindow* parent)
     }
 }
 
-ConfigPanel::~ConfigPanel()
+CbClangTidyConfigPanel::~CbClangTidyConfigPanel()
 {
-    //(*Destroy(ConfigPanel)
+    //(*Destroy(CbClangTidyConfigPanel)
     //*)
 }
 
-void ConfigPanel::OnCppCheckApp(cb_unused wxCommandEvent& event)
+void CbClangTidyConfigPanel::OnCbClangTidyApp(cb_unused wxCommandEvent& event)
 {
-    wxFileName initialFile(txtCppCheckApp->GetValue());
-    wxFileDialog dialog (this, _("Select CppCheck application"),
+    wxFileName initialFile(txtCbClangTidyApp->GetValue());
+    wxFileDialog dialog (this, _("Select CbClangTidy application"),
                          initialFile.GetPath(),
-                         GetDefaultCppCheckExecutableName(),
+                         GetDefaultCbClangTidyExecutableName(),
 #ifdef __WXMSW__
                          _("Executable files (*.exe)|*.exe"),
 #else
@@ -163,11 +163,11 @@ void ConfigPanel::OnCppCheckApp(cb_unused wxCommandEvent& event)
                         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
     PlaceWindow(&dialog);
     if (dialog.ShowModal() == wxID_OK)
-        txtCppCheckApp->SetValue(dialog.GetPath());
+        txtCbClangTidyApp->SetValue(dialog.GetPath());
 }
 
 
-void ConfigPanel::OnVeraApp(cb_unused wxCommandEvent& event)
+void CbClangTidyConfigPanel::OnVeraApp(cb_unused wxCommandEvent& event)
 {
     wxFileName initialFile(txtVeraApp->GetValue());
     wxFileDialog dialog (this, _("Select Vera++ application"),
@@ -184,16 +184,16 @@ void ConfigPanel::OnVeraApp(cb_unused wxCommandEvent& event)
         txtVeraApp->SetValue(dialog.GetPath());
 }
 
-void ConfigPanel::OnApply()
+void CbClangTidyConfigPanel::OnApply()
 {
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("cppcheck"));
     if (cfg)
     {
-        wxString app = txtCppCheckApp->GetValue();
+        wxString app = txtCbClangTidyApp->GetValue();
         if (!app.IsEmpty())
             cfg->Write(_T("cppcheck_app"), app);
-        if (!txtCppCheckArgs->GetValue().IsEmpty())
-            cfg->Write(_T("cppcheck_args"), txtCppCheckArgs->GetValue());
+        if (!txtCbClangTidyArgs->GetValue().IsEmpty())
+            cfg->Write(_T("cppcheck_args"), txtCbClangTidyArgs->GetValue());
 
         app = txtVeraApp->GetValue();
         if (!app.IsEmpty())
@@ -205,7 +205,7 @@ void ConfigPanel::OnApply()
     }
 }
 
-wxString ConfigPanel::GetDefaultCppCheckExecutableName()
+wxString CbClangTidyConfigPanel::GetDefaultCbClangTidyExecutableName()
 {
 #ifdef __WXMSW__
     return _T("cppcheck.exe");
@@ -214,7 +214,7 @@ wxString ConfigPanel::GetDefaultCppCheckExecutableName()
 #endif
 }
 
-wxString ConfigPanel::GetDefaultVeraExecutableName()
+wxString CbClangTidyConfigPanel::GetDefaultVeraExecutableName()
 {
 #ifdef __WXMSW__
     return _T("vera++.exe");
