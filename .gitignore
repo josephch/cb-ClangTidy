@@ -1,0 +1,8 @@
+.cache/
+.objs/
+CbClangTidy-unix-external.depend
+CbClangTidy-unix-external.layout
+CbClangTidy.cbplugin
+CbClangTidy.so
+CbClangTidy.zip
+compile_commands.json
