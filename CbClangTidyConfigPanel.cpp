@@ -86,8 +86,7 @@ CbClangTidyConfigPanel::CbClangTidyConfigPanel(wxWindow* parent)
     {
         txtCbClangTidyApp->SetValue(cfg->Read(_T("clang-tidy_app"),
                                               GetDefaultCbClangTidyExecutableName()));
-        txtCbClangTidyArgs->SetValue(cfg->Read(_T("clang-tidy_args"),
-                                               _T("--verbose --enable=all --enable=style --xml")));
+        txtCbClangTidyArgs->SetValue(cfg->Read(_T("clang-tidy_args")));
     }
 }
 

@@ -194,7 +194,9 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
                      _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
         return -1;
     }
-
+    wxFileName compileCommands(Project->GetFilename());
+    compileCommands.SetFullName("compile_commands.json");
+    InputFile.Write(_T("-p ") + compileCommands.GetFullPath() + _T("\n"));
     for (FilesList::iterator it = Project->GetFilesList().begin(); it != Project->GetFilesList().end(); ++it)
     {
         ProjectFile* pf = *it;
@@ -267,9 +269,9 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     ConfigManager* cfg = Manager::Get()->GetConfigManager(_T("clang-tidy"));
 
     wxString CppExe = GetAppExecutable(_T("clang-tidy"), _T("clang-tidy_app"));
-    wxString CppArgs = cfg->Read(_T("clang-tidy_args"), _T("--verbose --enable=all --enable=style --xml"));
+    wxString CppArgs = cfg->Read(_T("clang-tidy_args"));
     Manager::Get()->GetMacrosManager()->ReplaceMacros(CppArgs);
-    wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" --file-list=") + CbClangTidyAttribs.InputFileName;
+    wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" @") + CbClangTidyAttribs.InputFileName;
 
     if (!CbClangTidyAttribs.IncludeList.IsEmpty())
     {
