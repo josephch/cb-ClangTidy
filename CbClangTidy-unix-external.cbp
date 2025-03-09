@@ -34,8 +34,9 @@
 			<Add alias="All" targets="default;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add option="-std=c++11" />
+			<Add option="-std=c++20" />
 			<Add option="-fPIC" />
+			<Add directory="compiler-output-parser/compile-time-regular-expressions/include" />
 		</Compiler>
 		<Linker>
 			<Add option="-Wl,--no-undefined" />
@@ -46,6 +47,7 @@
 		<Unit filename="CbClangTidyConfigPanel.h" />
 		<Unit filename="CbClangTidyListLog.cpp" />
 		<Unit filename="CbClangTidyListLog.h" />
+		<Unit filename="compiler-output-parser/compiler_output_parser.hpp" />
 		<Unit filename="wxsmith/CbClangTidyConfigPanel.wxs" />
 		<Extensions>
 			<wxsmith version="1">

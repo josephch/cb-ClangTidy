@@ -41,6 +41,7 @@
 #include "CbClangTidy.h"
 #include "CbClangTidyConfigPanel.h"
 #include "CbClangTidyListLog.h"
+#include "compiler-output-parser/compiler_output_parser.hpp"
 
 // Register the plugin
 namespace
@@ -273,22 +274,53 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     Manager::Get()->GetMacrosManager()->ReplaceMacros(CppArgs);
     wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" @") + CbClangTidyAttribs.InputFileName;
 
-    if (!CbClangTidyAttribs.IncludeList.IsEmpty())
-    {
-        CommandLine += _T(" ") + CbClangTidyAttribs.IncludeList.Trim() + _T(" ") + CbClangTidyAttribs.DefineList.Trim();
-    }
-
     wxArrayString Output, Errors;
     bool isOK = AppExecute(_T("clang-tidy"), CommandLine, Output, Errors);
     ::wxRemoveFile(CbClangTidyAttribs.InputFileName);
     if (!isOK)
         return -1;
-
-    wxString Xml;
+    m_ListLog->Clear();
+    std::string line;
+    bool logsPresent = false;
+    for (size_t idxCount = 0; idxCount < Output.GetCount(); ++idxCount)
+    {
+#ifdef DEBUG
+        fprintf(stderr, "Output[%zu] : %s\n", idxCount, Output[idxCount].ToUTF8().data());
+#endif
+        CompilerOutputLineInfo compilerOutputLineInfo = ::GetCompilerOutputLineInfo(Output[idxCount].ToStdString());
+        if (compilerOutputLineInfo.type != CompilerOutputLineType::normal)
+        {
+            if (!compilerOutputLineInfo.fileName.empty() && !compilerOutputLineInfo.line.empty() && !compilerOutputLineInfo.message.empty())
+            {
+                wxArrayString Arr;
+                Arr.Add(compilerOutputLineInfo.fileName);
+                Arr.Add(compilerOutputLineInfo.line);
+                Arr.Add(compilerOutputLineInfo.message);
+                m_ListLog->Append(Arr);
+                logsPresent = true;
+            }
+            else if (!compilerOutputLineInfo.message.empty())
+            {
+                AppendToLog(compilerOutputLineInfo.message); // might be something important like config not found...
+            }
+        }
+    }
     for (size_t idxCount = 0; idxCount < Errors.GetCount(); ++idxCount)
-        Xml += Errors[idxCount];
-    DoCbClangTidyAnalysis(Xml);
+    {
+#ifdef DEBUG
+        fprintf(stderr, "Errors[%zu] : %s\n", idxCount, Errors[idxCount].ToUTF8().data());
+#endif
+        AppendToLog(Errors[idxCount]);
+    }
 
+    if (logsPresent)
+    {
+        if (Manager::Get()->GetLogManager())
+        {
+            CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
+            Manager::Get()->ProcessEvent(evtSwitch);
+        }
+    }
     return 0;
 }
 

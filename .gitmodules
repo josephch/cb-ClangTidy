@@ -1,0 +1,3 @@
+[submodule "compiler-output-parser"]
+	path = compiler-output-parser
+	url = https://github.com/josephch/compiler-output-parser.git
