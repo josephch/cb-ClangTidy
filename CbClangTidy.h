@@ -12,7 +12,6 @@
 
 #include "cbplugin.h" // the base class we 're inheriting
 
-#include <tinyxml.h>
 #include <wx/string.h>
 
 class wxArrayString;
@@ -48,9 +47,6 @@ class CbClangTidy : public cbToolPlugin
 
     int ExecuteCbClangTidy(cbProject* Project);
     int DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs);
-    void DoCbClangTidyAnalysis(const wxString& Xml);
-    bool DoCbClangTidyParseXMLv1(TiXmlHandle& Handle);
-    bool DoCbClangTidyParseXMLv2(TiXmlHandle& Handle);
     //} CbClangTidy
 
     bool DoVersion(const wxString& app, const wxString& app_cfg);

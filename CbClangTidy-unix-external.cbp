@@ -16,11 +16,9 @@
 					<Add option="`wx-config --cflags`" />
 					<Add option="-g" />
 					<Add option="-Wall" />
-					<Add directory="json/include" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config --libs codeblocks`" />
-					<Add option="`pkg-config --libs tinyxml`" />
 					<Add option="`wx-config --libs`" />
 				</Linker>
 				<ExtraCommands>

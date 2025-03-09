@@ -41,7 +41,11 @@
 #include "CbClangTidy.h"
 #include "CbClangTidyConfigPanel.h"
 #include "CbClangTidyListLog.h"
-#include "compiler-output-parser/compiler_output_parser.hpp"
+
+#define PARSE_CLANG_TIDY_OUTPUT
+#ifdef PARSE_CLANG_TIDY_OUTPUT
+    #include "compiler-output-parser/compiler_output_parser.hpp"
+#endif
 
 // Register the plugin
 namespace
@@ -287,6 +291,7 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 #ifdef DEBUG
         fprintf(stderr, "Output[%zu] : %s\n", idxCount, Output[idxCount].ToUTF8().data());
 #endif
+#ifdef PARSE_CLANG_TIDY_OUTPUT
         CompilerOutputLineInfo compilerOutputLineInfo = ::GetCompilerOutputLineInfo(Output[idxCount].ToStdString());
         if (compilerOutputLineInfo.type != CompilerOutputLineType::normal)
         {
@@ -304,6 +309,7 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
                 AppendToLog(compilerOutputLineInfo.message); // might be something important like config not found...
             }
         }
+#endif
     }
     for (size_t idxCount = 0; idxCount < Errors.GetCount(); ++idxCount)
     {
@@ -323,154 +329,6 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     }
     return 0;
 }
-
-void CbClangTidy::DoCbClangTidyAnalysis(const wxString& Xml)
-{
-    // clear the list
-    m_ListLog->Clear();
-
-    TiXmlDocument Doc;
-    Doc.Parse(Xml.ToAscii());
-    if (Doc.Error())
-    {
-        wxString msg = _("Failed to parse clang-tidy XML file.\nProbably it's not produced correctly.");
-        AppendToLog(msg);
-        cbMessageBox(msg, _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
-    }
-    else
-    {
-        TiXmlHandle Handle(&Doc);
-        Handle = Handle.FirstChildElement("results");
-
-        bool ErrorsPresent = false;
-        TiXmlElement* resultNode = Handle.ToElement();
-        if (resultNode && resultNode->Attribute("version"))
-        {
-            wxString Version = wxString::FromAscii(resultNode->Attribute("version"));
-            if (Version.IsSameAs(wxT("2")))
-                ErrorsPresent = DoCbClangTidyParseXMLv2(Handle);
-            else
-            {
-                cbMessageBox(_("Unsupported XML file version of CbClangTidy."),
-                             _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
-            }
-        }
-        else
-        {
-            ErrorsPresent = DoCbClangTidyParseXMLv1(Handle);
-        }
-
-        if (ErrorsPresent)
-        {
-            if (Manager::Get()->GetLogManager())
-            {
-                CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
-                Manager::Get()->ProcessEvent(evtSwitch);
-            }
-        }
-
-        if (!Doc.SaveFile("CbClangTidyResults.xml"))
-        {
-            cbMessageBox(_("Failed to create output file 'CbClangTidyResults.xml' for clang-tidy.\nPlease check file/folder access rights."),
-                         _("Error"), wxICON_ERROR | wxOK, Manager::Get()->GetAppWindow());
-        }
-    }
-}
-
-bool CbClangTidy::DoCbClangTidyParseXMLv1(TiXmlHandle& Handle)
-{
-    bool ErrorsPresent = false;
-
-    for (const TiXmlElement* Error = Handle.FirstChildElement("error").ToElement(); Error;
-         Error = Error->NextSiblingElement("error"))
-    {
-        wxString File;
-        if (const char* FileValue = Error->Attribute("file"))
-            File = wxString::FromAscii(FileValue);
-        wxString Line;
-        if (const char* LineValue = Error->Attribute("line"))
-            Line = wxString::FromAscii(LineValue);
-        wxString Id;
-        if (const char* IdValue = Error->Attribute("id"))
-            Id = wxString::FromAscii(IdValue);
-        wxString Severity;
-        if (const char* SeverityValue = Error->Attribute("severity"))
-            Severity = wxString::FromAscii(SeverityValue);
-        wxString Message;
-        if (const char* MessageValue = Error->Attribute("msg"))
-            Message = wxString::FromAscii(MessageValue);
-        const wxString FullMessage = Id + _T(" : ") + Severity + _T(" : ") + Message;
-
-        if (!File.IsEmpty() && !Line.IsEmpty() && !FullMessage.IsEmpty())
-        {
-            wxArrayString Arr;
-            Arr.Add(File);
-            Arr.Add(Line);
-            Arr.Add(FullMessage);
-            m_ListLog->Append(Arr);
-            ErrorsPresent = true;
-        }
-        else if (!Message.IsEmpty())
-            AppendToLog(Message); // might be something important like config not found...
-    }
-
-    return ErrorsPresent;
-}
-
-bool CbClangTidy::DoCbClangTidyParseXMLv2(TiXmlHandle& Handle)
-{
-    bool ErrorsPresent = false;
-
-    const TiXmlHandle& Errors = Handle.FirstChildElement("errors");
-
-    for (const TiXmlElement* Error = Errors.FirstChildElement("error").ToElement();
-         Error;
-         Error = Error->NextSiblingElement("error"))
-    {
-        wxString Id;
-        if (const char* IdValue = Error->Attribute("id"))
-            Id = wxString::FromAscii(IdValue);
-        wxString Severity;
-        if (const char* SeverityValue = Error->Attribute("severity"))
-            Severity = wxString::FromAscii(SeverityValue);
-        wxString Message;
-        if (const char* MessageValue = Error->Attribute("msg"))
-            Message = wxString::FromAscii(MessageValue);
-        wxString CWE;
-        if (const char* CWEValue = Error->Attribute("cwe"))
-            CWE = wxString::FromAscii(CWEValue);
-        wxString Verbose;
-        if (const char* VerboseValue = Error->Attribute("verbose"))
-            Verbose = wxString::FromAscii(VerboseValue);
-        const wxString FullMessage = Id + _T(" : ") + Severity + _T(" : ") + Verbose;
-
-        wxString File;
-        wxString Line;
-        const TiXmlElement* Location = Error->FirstChildElement("location");
-        if (nullptr != Location)
-        {
-            if (const char* FileValue = Location->Attribute("file"))
-                File = wxString::FromAscii(FileValue);
-            if (const char* LineValue = Location->Attribute("line"))
-                Line = wxString::FromAscii(LineValue);
-        }
-
-        if (!FullMessage.IsEmpty() && !File.IsEmpty() && !Line.IsEmpty())
-        {
-            wxArrayString Arr;
-            Arr.Add(File);
-            Arr.Add(Line);
-            Arr.Add(FullMessage);
-            m_ListLog->Append(Arr);
-            ErrorsPresent = true;
-        }
-        else if (!Message.IsEmpty())
-            AppendToLog(Message); // might be something important like config not found...
-    }
-
-    return ErrorsPresent;
-}
-//} CbClangTidy
 
 bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
 {
