@@ -48,7 +48,7 @@ CbClangTidyConfigPanel::CbClangTidyConfigPanel(wxWindow* parent)
     bszMain = new wxBoxSizer(wxHORIZONTAL);
     flsMain = new wxFlexGridSizer(0, 2, 0, 0);
     flsMain->AddGrowableCol(1);
-    lblCbClangTidyApp = new wxStaticText(this, wxID_ANY, _("CbClangTidy application:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    lblCbClangTidyApp = new wxStaticText(this, wxID_ANY, _("clang-tidy application:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
     flsMain->Add(lblCbClangTidyApp, 0, wxLEFT | wxALIGN_CENTER_VERTICAL, 5);
     bszCbClangTidyApp = new wxBoxSizer(wxHORIZONTAL);
     txtCbClangTidyApp = new wxTextCtrl(this, ID_TXT_CLANG_TIDY_APP, _("clang-tidy"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_APP"));
@@ -57,12 +57,12 @@ CbClangTidyConfigPanel::CbClangTidyConfigPanel(wxWindow* parent)
     btnCbClangTidyApp->SetMinSize(wxSize(30, -1));
     bszCbClangTidyApp->Add(btnCbClangTidyApp, 0, wxLEFT | wxALIGN_CENTER_VERTICAL, 5);
     flsMain->Add(bszCbClangTidyApp, 1, wxLEFT | wxEXPAND, 5);
-    lblCbClangTidyArgs = new wxStaticText(this, wxID_ANY, _("CbClangTidy arguments:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    lblCbClangTidyArgs = new wxStaticText(this, wxID_ANY, _("clang-tidy arguments:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
     flsMain->Add(lblCbClangTidyArgs, 0, wxTOP | wxLEFT | wxALIGN_CENTER_VERTICAL, 5);
     txtCbClangTidyArgs = new wxTextCtrl(this, ID_TXT_CLANG_TIDY_ARGS, _("--verbose --enable=all --enable=style --xml"), wxDefaultPosition, wxDefaultSize, 0, wxDefaultValidator, _T("ID_TXT_CPP_CHECK_ARGS"));
     txtCbClangTidyArgs->SetMinSize(wxSize(240, -1));
     flsMain->Add(txtCbClangTidyArgs, 1, wxTOP | wxLEFT | wxEXPAND, 5);
-    lblCbClangTidyArgsComment = new wxStaticText(this, wxID_ANY, _("(before \"--file-list\")"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
+    lblCbClangTidyArgsComment = new wxStaticText(this, wxID_ANY, _("(insterted before file list)"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
     flsMain->Add(lblCbClangTidyArgsComment, 0, wxLEFT | wxALIGN_TOP, 5);
     flsMain->Add(-1, -1, 1, wxLEFT | wxEXPAND, 5);
     lblCbClangTidyWWW = new wxStaticText(this, wxID_ANY, _("CbClangTidy homepage:"), wxDefaultPosition, wxDefaultSize, 0, _T("wxID_ANY"));
@@ -99,7 +99,7 @@ CbClangTidyConfigPanel::~CbClangTidyConfigPanel()
 void CbClangTidyConfigPanel::OnCbClangTidyApp(cb_unused wxCommandEvent& event)
 {
     wxFileName initialFile(txtCbClangTidyApp->GetValue());
-    wxFileDialog dialog(this, _("Select CbClangTidy application"),
+    wxFileDialog dialog(this, _("Select clang-tidy application"),
                         initialFile.GetPath(),
                         GetDefaultCbClangTidyExecutableName(),
 #ifdef __WXMSW__
