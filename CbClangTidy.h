@@ -51,6 +51,7 @@ class CbClangTidy : public cbToolPlugin
 
     bool DoVersion(const wxString& app, const wxString& app_cfg);
     bool AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors);
+    bool AppExecuteWithBusyBanner(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors);
     wxString GetAppExecutable(const wxString& app, const wxString& app_cfg);
 
     TextCtrlLogger* m_CbClangTidyLog; //!< log tab in the message pane

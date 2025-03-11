@@ -279,7 +279,7 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     wxString CommandLine = CppExe + _T(" ") + CppArgs + _T(" @") + CbClangTidyAttribs.InputFileName;
 
     wxArrayString Output, Errors;
-    bool isOK = AppExecute(_T("clang-tidy"), CommandLine, Output, Errors);
+    bool isOK = AppExecuteWithBusyBanner(_T("clang-tidy"), CommandLine, Output, Errors);
     ::wxRemoveFile(CbClangTidyAttribs.InputFileName);
     if (!isOK)
         return -1;
@@ -342,12 +342,16 @@ bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
     return true;
 }
 
-bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
+bool CbClangTidy::AppExecuteWithBusyBanner(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
 {
     wxWindowDisabler disableAll;
     wxBusyInfo running(wxString::Format(_("Running %s... please wait (this may take several minutes)..."), app),
                        Manager::Get()->GetAppWindow());
+    return AppExecute(app, CommandLine, Output, Errors);
+}
 
+bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
+{
     AppendToLog(CommandLine);
     if (-1 == wxExecute(CommandLine, Output, Errors, wxEXEC_SYNC))
     {
