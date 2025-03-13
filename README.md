@@ -31,7 +31,7 @@ clang-tidy should be installed before this plugin can be used.
 Navigate to Settings->Environment->CbClangTidy and verify or enter the location of the clang-tidy executable in the box labeled ```clang-tidy application:```.
 
 ## Run clang-tidy
-Navigate to ```Plugins``` menu and click on ```cbClangTidy```
+Navigate to ```Plugins``` menu and click on ```Analyze with clang-tidy```
 
 ## License
 
