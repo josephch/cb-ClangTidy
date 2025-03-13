@@ -292,23 +292,36 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
         fprintf(stderr, "Output[%zu] : %s\n", idxCount, Output[idxCount].ToUTF8().data());
 #endif
 #ifdef PARSE_CLANG_TIDY_OUTPUT
-        CompilerOutputLineInfo compilerOutputLineInfo = ::GetCompilerOutputLineInfo(Output[idxCount].ToStdString());
+        Logger::level level = Logger::level::info;
+        wxArrayString Arr;
+        std::string line = Output[idxCount].ToStdString();
+        CompilerOutputLineInfo compilerOutputLineInfo = ::GetCompilerOutputLineInfo(line);
         if (compilerOutputLineInfo.type != CompilerOutputLineType::normal)
         {
-            if (!compilerOutputLineInfo.fileName.empty() && !compilerOutputLineInfo.line.empty() && !compilerOutputLineInfo.message.empty())
+            switch (compilerOutputLineInfo.type)
             {
-                wxArrayString Arr;
-                Arr.Add(compilerOutputLineInfo.fileName);
-                Arr.Add(compilerOutputLineInfo.line);
-                Arr.Add(compilerOutputLineInfo.message);
-                m_ListLog->Append(Arr);
-                logsPresent = true;
+            case CompilerOutputLineType::error:
+                level = Logger::level::error;
+                break;
+            case CompilerOutputLineType::warning:
+                level = Logger::level::warning;
+                break;
+            default:
+                break;
             }
-            else if (!compilerOutputLineInfo.message.empty())
-            {
-                AppendToLog(compilerOutputLineInfo.message); // might be something important like config not found...
-            }
+            int i = 0;
+            Arr.Add(compilerOutputLineInfo.fileName);
+            Arr.Add(compilerOutputLineInfo.line);
+            Arr.Add(compilerOutputLineInfo.message);
         }
+        else
+        {
+            Arr.Add(wxEmptyString);
+            Arr.Add(wxEmptyString);
+            Arr.Add(line);
+        }
+        m_ListLog->Append(Arr, level);
+        logsPresent = true;
 #endif
     }
     for (size_t idxCount = 0; idxCount < Errors.GetCount(); ++idxCount)
