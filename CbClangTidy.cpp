@@ -70,9 +70,7 @@ namespace
     }
 }; // namespace
 
-CbClangTidy::CbClangTidy() : m_CbClangTidyLog(0),
-                             m_ListLog(0),
-                             m_LogPageIndex(0), // good init value ???
+CbClangTidy::CbClangTidy() : m_ListLog(0),
                              m_ListLogPageIndex(0),
                              m_PATH(wxEmptyString)
 {
@@ -92,12 +90,6 @@ void CbClangTidy::OnAttach()
     // (see: does not need) this plugin...
     if (LogManager* LogMan = Manager::Get()->GetLogManager())
     {
-        m_CbClangTidyLog = new TextCtrlLogger();
-        m_LogPageIndex = LogMan->SetLog(m_CbClangTidyLog);
-        LogMan->Slot(m_LogPageIndex).title = _("CbClangTidy");
-        CodeBlocksLogEvent evtAdd1(cbEVT_ADD_LOG_WINDOW, m_CbClangTidyLog, LogMan->Slot(m_LogPageIndex).title);
-        Manager::Get()->ProcessEvent(evtAdd1);
-
         wxArrayString Titles;
         wxArrayInt Widths;
         Titles.Add(_("File"));
@@ -109,7 +101,7 @@ void CbClangTidy::OnAttach()
         m_ListLog = new CbClangTidyListLog(Titles, Widths);
 
         m_ListLogPageIndex = LogMan->SetLog(m_ListLog);
-        LogMan->Slot(m_ListLogPageIndex).title = _("CbClangTidy messages");
+        LogMan->Slot(m_ListLogPageIndex).title = _("ClangTidy");
         CodeBlocksLogEvent evtAdd2(cbEVT_ADD_LOG_WINDOW, m_ListLog, LogMan->Slot(m_ListLogPageIndex).title);
         Manager::Get()->ProcessEvent(evtAdd2);
     }
@@ -124,11 +116,6 @@ void CbClangTidy::OnRelease(bool /*appShutDown*/)
     // IsAttached() will be FALSE...
     if (Manager::Get()->GetLogManager())
     {
-        if (m_CbClangTidyLog)
-        {
-            CodeBlocksLogEvent evt(cbEVT_REMOVE_LOG_WINDOW, m_CbClangTidyLog);
-            Manager::Get()->ProcessEvent(evt);
-        }
         if (m_ListLog)
         {
             CodeBlocksLogEvent evt(cbEVT_REMOVE_LOG_WINDOW, m_ListLog);
@@ -136,24 +123,24 @@ void CbClangTidy::OnRelease(bool /*appShutDown*/)
             Manager::Get()->ProcessEvent(evt);
         }
     }
-    m_CbClangTidyLog = 0;
-    m_ListLog = 0;
+    m_ListLog = nullptr;
 }
 
 void CbClangTidy::WriteToLog(const wxString& Text)
 {
-    m_CbClangTidyLog->Clear();
+    m_ListLog->Clear();
     AppendToLog(Text);
 }
 
 void CbClangTidy::AppendToLog(const wxString& Text)
 {
-    if (LogManager* LogMan = Manager::Get()->GetLogManager())
-    {
-        CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_CbClangTidyLog);
-        Manager::Get()->ProcessEvent(evtSwitch);
-        LogMan->Log(Text, m_LogPageIndex);
-    }
+    wxArrayString Arr;
+    Arr.Add(wxEmptyString);
+    Arr.Add(wxEmptyString);
+    Arr.Add(Text);
+    m_ListLog->Append(Arr, Logger::level::info);
+    CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
+    Manager::Get()->ProcessEvent(evtSwitch);
 }
 
 cbConfigurationPanel* CbClangTidy::GetConfigurationPanel(wxWindow* parent)
@@ -283,7 +270,6 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
     ::wxRemoveFile(CbClangTidyAttribs.InputFileName);
     if (!isOK)
         return -1;
-    m_ListLog->Clear();
     std::string line;
     bool logsPresent = false;
     for (size_t idxCount = 0; idxCount < Output.GetCount(); ++idxCount)

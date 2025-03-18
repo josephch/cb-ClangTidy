@@ -54,10 +54,8 @@ class CbClangTidy : public cbToolPlugin
     bool AppExecuteWithBusyBanner(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors);
     wxString GetAppExecutable(const wxString& app, const wxString& app_cfg);
 
-    TextCtrlLogger* m_CbClangTidyLog; //!< log tab in the message pane
-    CbClangTidyListLog* m_ListLog;    //!< log tab to click/double click to take you to offending line of code
-    int m_LogPageIndex;               //!< index of our log tab (can this change during run time ??)
-    int m_ListLogPageIndex;           //!< index of our list log tab
+    CbClangTidyListLog* m_ListLog; //!< log tab to click/double click to take you to offending line of code
+    int m_ListLogPageIndex;        //!< index of our list log tab
 
     wxString m_PATH;
 };
