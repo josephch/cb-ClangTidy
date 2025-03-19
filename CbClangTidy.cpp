@@ -335,10 +335,16 @@ bool CbClangTidy::DoVersion(const wxString& app, const wxString& app_cfg)
 
     wxArrayString Output, Errors;
     wxString CommandLine = app_exe + _T(" --version");
-    if (!AppExecute(app, CommandLine, Output, Errors))
-        return false;
+    bool ret = AppExecute(app, CommandLine, Output, Errors);
 
-    return true;
+    int Count = Output.GetCount();
+    for (int idxCount = 0; idxCount < Count; ++idxCount)
+        AppendToLog(Output[idxCount]);
+
+    Count = Errors.GetCount();
+    for (int idxCount = 0; idxCount < Count; ++idxCount)
+        AppendToLog(Errors[idxCount]);
+    return ret;
 }
 
 bool CbClangTidy::AppExecuteWithBusyBanner(const wxString& app, const wxString& CommandLine, wxArrayString& Output, wxArrayString& Errors)
@@ -366,14 +372,6 @@ bool CbClangTidy::AppExecute(const wxString& app, const wxString& CommandLine, w
 
         return false;
     }
-
-    int Count = Output.GetCount();
-    for (int idxCount = 0; idxCount < Count; ++idxCount)
-        AppendToLog(Output[idxCount]);
-
-    Count = Errors.GetCount();
-    for (int idxCount = 0; idxCount < Count; ++idxCount)
-        AppendToLog(Errors[idxCount]);
 
     if (!m_PATH.IsEmpty())
         wxSetEnv(wxT("PATH"), m_PATH); // Restore
