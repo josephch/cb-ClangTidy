@@ -418,11 +418,10 @@ wxString CbClangTidy::GetAppExecutable(const wxString& app, const wxString& app_
             NewPathEnvVar << PathItem;
         }
 
-        if (m_PATH.IsEmpty())
-            m_PATH = NewPathEnvVar;
-
         if (PrependPath)
         {
+            if (m_PATH.IsEmpty())
+                m_PATH = NewPathEnvVar;
             NewPathEnvVar = NewPathEnvVar.Prepend(wxPATH_SEP);
             NewPathEnvVar = NewPathEnvVar.Prepend(AppPath);
             wxSetEnv("PATH", NewPathEnvVar); // Don't care about return value
