@@ -41,11 +41,7 @@
 #include "CbClangTidy.h"
 #include "CbClangTidyConfigPanel.h"
 #include "CbClangTidyListLog.h"
-
-#define PARSE_CLANG_TIDY_OUTPUT
-#ifdef PARSE_CLANG_TIDY_OUTPUT
-    #include "compiler-output-parser/compiler_output_parser.hpp"
-#endif
+#include "CbCompilerOutputToLogger.h"
 
 // Register the plugin
 namespace
@@ -277,38 +273,10 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 #ifdef DEBUG
         fprintf(stderr, "Output[%zu] : %s\n", idxCount, Output[idxCount].ToUTF8().data());
 #endif
-#ifdef PARSE_CLANG_TIDY_OUTPUT
-        Logger::level level = Logger::level::info;
-        wxArrayString Arr;
         std::string line = Output[idxCount].ToStdString();
-        CompilerOutputLineInfo compilerOutputLineInfo = ::GetCompilerOutputLineInfo(line);
-        if (compilerOutputLineInfo.type != CompilerOutputLineType::normal)
-        {
-            switch (compilerOutputLineInfo.type)
-            {
-            case CompilerOutputLineType::error:
-                level = Logger::level::error;
-                break;
-            case CompilerOutputLineType::warning:
-                level = Logger::level::warning;
-                break;
-            default:
-                break;
-            }
-            int i = 0;
-            Arr.Add(compilerOutputLineInfo.fileName);
-            Arr.Add(compilerOutputLineInfo.line);
-            Arr.Add(compilerOutputLineInfo.message);
-        }
-        else
-        {
-            Arr.Add(wxEmptyString);
-            Arr.Add(wxEmptyString);
-            Arr.Add(line);
-        }
-        m_ListLog->Append(Arr, level);
+        LoggerInfo loggerInfo = CompilerOutputToLoggerFormat(Output[idxCount].ToStdString());
+        m_ListLog->Append(loggerInfo.colValues, loggerInfo.level);
         logsPresent = true;
-#endif
     }
     for (size_t idxCount = 0; idxCount < Errors.GetCount(); ++idxCount)
     {
