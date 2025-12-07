@@ -320,6 +320,7 @@ int CbClangTidy::DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs)
 
     if (logsPresent)
     {
+        m_ListLog->AutoFitColumns(2);
         if (Manager::Get()->GetLogManager())
         {
             CodeBlocksLogEvent evtSwitch(cbEVT_SWITCH_TO_LOG_WINDOW, m_ListLog);
