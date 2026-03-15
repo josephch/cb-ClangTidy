@@ -189,7 +189,8 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
     {
         ProjectFile* pf = *it;
         // filter to avoid including non C/C++ files
-        if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftHeader) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
+        if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) ||
+            pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
         {
             InputFile.Write(pf->relativeFilename + _T("\n"));
         }
