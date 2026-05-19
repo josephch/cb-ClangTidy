@@ -11,6 +11,7 @@
 #define CBCLANGTIDY_H_INCLUDED
 
 #include "cbplugin.h" // the base class we 're inheriting
+#include "projectfile.h"
 
 #include <wx/string.h>
 
@@ -31,10 +32,13 @@ class CbClangTidy : public cbToolPlugin
     int Execute();
 
     virtual cbConfigurationPanel* GetConfigurationPanel(wxWindow* /*parent*/);
+    void BuildModuleMenu(cb_optional const ModuleType type, cb_optional wxMenu* menu, cb_optional const FileTreeData* data = nullptr) override;
 
   private:
+    DECLARE_EVENT_TABLE();
     void WriteToLog(const wxString& Text);
     void AppendToLog(const wxString& Text);
+    void OnTriggeredFromProjectTree(wxCommandEvent& event);
 
     //{ CbClangTidy
     struct SCbClangTidyAttribs
@@ -46,6 +50,7 @@ class CbClangTidy : public cbToolPlugin
     typedef struct SCbClangTidyAttribs TCbClangTidyAttribs;
 
     int ExecuteCbClangTidy(cbProject* Project);
+    int ExecuteCbClangTidy(cbProject* Project, const FilesList& fileList);
     int DoCbClangTidyExecute(TCbClangTidyAttribs& CbClangTidyAttribs);
     //} CbClangTidy
 

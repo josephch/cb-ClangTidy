@@ -47,7 +47,12 @@
 namespace
 {
     PluginRegistrant<CbClangTidy> reg(_T("CbClangTidy"));
+    const int idRun = wxNewId();
 };
+
+BEGIN_EVENT_TABLE(CbClangTidy, cbToolPlugin)
+EVT_MENU(idRun, CbClangTidy::OnTriggeredFromProjectTree)
+END_EVENT_TABLE()
 
 namespace
 {
@@ -148,6 +153,76 @@ cbConfigurationPanel* CbClangTidy::GetConfigurationPanel(wxWindow* parent)
     return new CbClangTidyConfigPanel(parent);
 }
 
+void CbClangTidy::BuildModuleMenu(const ModuleType type, wxMenu* menu, const FileTreeData* data)
+{
+    if (!menu || !IsAttached() || !data)
+        return;
+
+    if (type != mtProjectManager)
+    {
+        return;
+    }
+    menu->Append(idRun, _("Run clang-tidy"), _("Run clang-tidy"));
+}
+
+void CbClangTidy::OnTriggeredFromProjectTree(wxCommandEvent& event)
+{
+    const wxTreeCtrl* tree;
+    wxArrayTreeItemIds treeItems;
+
+    tree = Manager::Get()->GetProjectManager()->GetUI().GetTree();
+    if (!tree)
+    {
+        WriteToLog(_("Failed to get source tree"));
+        return;
+    }
+
+    size_t selectionSize = tree->GetSelections(treeItems);
+    if (!selectionSize)
+    {
+        WriteToLog(_("Failed to get selected files"));
+        return;
+    }
+
+    FilesList files;
+    for (size_t i = 0; i < selectionSize; i++)
+    {
+        const wxTreeItemId& selItem = treeItems[i];
+        FileTreeData* fileTreeData = static_cast<FileTreeData*>(tree->GetItemData(selItem));
+        if (!fileTreeData)
+        {
+#ifdef DEBUG
+            fprintf(stderr, "%s:%d : fileTree data not available. index %zu\n", __FUNCTION__, __LINE__, i);
+#endif
+            continue;
+        }
+
+        const FileTreeData::FileTreeDataKind fileTreeDataKind = fileTreeData->GetKind();
+        if (fileTreeDataKind == FileTreeData::ftdkFile)
+        {
+            files.insert(fileTreeData->GetProjectFile());
+        }
+    }
+
+    if (files.empty())
+    {
+        WriteToLog(_("Please select valid files belonging to active project"));
+    }
+    else
+    {
+        ProjectFile* firstFile = *files.begin();
+        cbProject* project = firstFile->GetParentProject();
+        if (!project)
+        {
+            WriteToLog(_("Failed to get project associated with file"));
+        }
+        else
+        {
+            ExecuteCbClangTidy(project, files);
+        }
+    }
+}
+
 int CbClangTidy::Execute()
 {
     WriteToLog(_("Running clang-tidy analysis... please wait..."));
@@ -169,6 +244,11 @@ int CbClangTidy::Execute()
 //{ CbClangTidy
 int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
 {
+    return ExecuteCbClangTidy(Project, Project->GetFilesList());
+}
+
+int CbClangTidy::ExecuteCbClangTidy(cbProject* Project, const FilesList& fileList)
+{
     if (!DoVersion(_T("clang-tidy"), _T("clang-tidy_app")))
         return -1;
 
@@ -185,9 +265,8 @@ int CbClangTidy::ExecuteCbClangTidy(cbProject* Project)
     wxFileName compileCommands(Project->GetFilename());
     compileCommands.SetFullName("compile_commands.json");
     InputFile.Write(_T("-p ") + compileCommands.GetFullPath() + _T("\n"));
-    for (FilesList::iterator it = Project->GetFilesList().begin(); it != Project->GetFilesList().end(); ++it)
+    for (ProjectFile* pf : fileList)
     {
-        ProjectFile* pf = *it;
         // filter to avoid including non C/C++ files
         if (pf->relativeFilename.EndsWith(FileFilters::C_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPP_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CC_DOT_EXT) ||
             pf->relativeFilename.EndsWith(FileFilters::CXX_DOT_EXT) || pf->relativeFilename.EndsWith(FileFilters::CPLPL_DOT_EXT) || (FileTypeOf(pf->relativeFilename) == ftTemplateSource))
