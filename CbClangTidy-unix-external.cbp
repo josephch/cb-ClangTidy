@@ -45,6 +45,7 @@
 		<Unit filename="CbClangTidyConfigPanel.h" />
 		<Unit filename="CbClangTidyListLog.cpp" />
 		<Unit filename="CbClangTidyListLog.h" />
+		<Unit filename="CbCompilerOutputToLogger.cpp" />
 		<Unit filename="compiler-output-parser/compiler_output_parser.hpp" />
 		<Unit filename="wxsmith/CbClangTidyConfigPanel.wxs" />
 		<Extensions>
