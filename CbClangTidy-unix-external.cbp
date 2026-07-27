@@ -36,9 +36,6 @@
 			<Add option="-fPIC" />
 			<Add directory="compiler-output-parser/compile-time-regular-expressions/include" />
 		</Compiler>
-		<Linker>
-			<Add option="-Wl,--no-undefined" />
-		</Linker>
 		<Unit filename="CbClangTidy.cpp" />
 		<Unit filename="CbClangTidy.h" />
 		<Unit filename="CbClangTidyConfigPanel.cpp" />
@@ -46,6 +43,7 @@
 		<Unit filename="CbClangTidyListLog.cpp" />
 		<Unit filename="CbClangTidyListLog.h" />
 		<Unit filename="CbCompilerOutputToLogger.cpp" />
+		<Unit filename="CbCompilerOutputToLogger.h" />
 		<Unit filename="compiler-output-parser/compiler_output_parser.hpp" />
 		<Unit filename="wxsmith/CbClangTidyConfigPanel.wxs" />
 		<Extensions>
